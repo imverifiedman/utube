@@ -51,6 +51,12 @@
         .btn-small { padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 6px; width: auto; }
         .btn-small:hover { background: rgba(255,255,255,0.15); }
         
+        /* New outline buttons for actions */
+        .btn-danger-outline { background: rgba(231, 76, 60, 0.1); border-color: rgba(231, 76, 60, 0.4); color: #e74c3c; }
+        .btn-danger-outline:hover { background: rgba(231, 76, 60, 0.2); }
+        .btn-warning-outline { background: rgba(241, 196, 15, 0.1); border-color: rgba(241, 196, 15, 0.4); color: #f1c40f; }
+        .btn-warning-outline:hover { background: rgba(241, 196, 15, 0.2); }
+
         /* --- Modern Checkbox (Toggle) --- */
         .toggle-container { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .toggle-container:hover { background: rgba(255,255,255,0.06); }
@@ -65,7 +71,7 @@
         .badge { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px 15px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; }
         .badge-remove { color: var(--danger); cursor: pointer; font-weight: bold; background: rgba(231, 76, 60, 0.1); padding: 2px 8px; border-radius: 4px; }
         .capacity-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; position: relative; }
-        .capacity-fill { height: 100%; background: var(--accent); }
+        .capacity-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
 
         /* --- Pre-flight Analyzer Table --- */
         #analysisResult { display: none; margin-bottom: 20px; }
@@ -79,20 +85,22 @@
         .log-item { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; transition: 0.3s; margin-bottom: 12px; }
         .log-item.success { border-color: rgba(46, 204, 113, 0.3); }
         .log-item.deleted { opacity: 0.5; filter: grayscale(1); }
+        .log-item.failed { border-color: rgba(231, 76, 60, 0.4); }
         .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         
         .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #ff2a40, #ff7b00); width: 0%; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(255, 42, 64, 0.5); }
         
-        .timer { font-family: monospace; color: var(--text-muted); font-size: 0.8rem; }
+        .timer { font-family: monospace; color: var(--text-muted); font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; }
         .file-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 0.85rem; border-top: 1px dashed rgba(255,255,255,0.05); margin-top: 10px; }
         .file-row a { color: #fff; text-decoration: none; transition: 0.3s; }
         .file-row a:hover { color: var(--accent); }
 
         /* --- Toasts --- */
         #toast-container { position: fixed; bottom: 25px; left: 25px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
-        .toast { background: rgba(20, 20, 25, 0.85); backdrop-filter: blur(20px); border-right: 4px solid var(--accent); padding: 15px 20px; border-radius: 10px; color: #fff; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .toast { background: rgba(20, 20, 25, 0.85); backdrop-filter: blur(20px); border-right: 4px solid var(--accent); padding: 15px 20px; border-radius: 10px; color: #fff; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; display: flex; align-items: center; gap: 8px;}
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
     </style>
 </head>
 <body>
@@ -162,7 +170,7 @@
                     <tbody id="analysisTableBody"></tbody>
                 </table>
                 <div style="text-align: left; font-size: 0.8rem; color: #888; margin-top: 10px;">
-                    * حجم‌ها بر اساس کیفیت انتخابی و فرمول بیت‌ریت محاسبه شده‌اند و ممکن است کمی با واقعیت تفاوت داشته باشند.
+                    * حجم‌ها بر اساس کیفیت انتخابی و فرمول بیت‌ریت محاسبه شده‌اند.
                 </div>
             </div>
         </div>
@@ -190,7 +198,7 @@
     let accounts = JSON.parse(localStorage.getItem('av_accounts')) || [];
     let activeTasks = JSON.parse(localStorage.getItem('av_tasks')) || []; 
     let liveFiles = []; 
-    let analysisData = []; // دیتای آنالیز شده موقت
+    let analysisData = [];
 
     const BRANCH = 'main';
 
@@ -226,7 +234,7 @@
         ytKeys.forEach((k, i) => box.innerHTML += `<div class="badge"><div>🔑 ...${k.slice(-8)}</div> <span class="badge-remove" onclick="removeYtKey(${i})">حذف</span></div>`);
     }
 
-    // --- مدیریت اکانت‌ها و محاسبه فضای خالی گیت‌هاب ---
+    // --- مدیریت اکانت‌ها ---
     async function addAccount() {
         const owner = document.getElementById('accOwner').value.trim();
         const repo = document.getElementById('accRepo').value.trim();
@@ -256,7 +264,6 @@
         const box = document.getElementById('accountsList');
         box.innerHTML = accounts.length ? '' : '<span style="font-size:12px; color:#666;">کلاستر خالی است</span>';
         accounts.forEach((a, i) => {
-            // گیت‌هاب حدود 4 گیگ (4194304 KB) محدودیت سافت دارد
             let totalKB = 4194304; 
             let usedGB = (a.usedKB / 1024 / 1024).toFixed(2);
             let pct = Math.min((a.usedKB / totalKB) * 100, 100);
@@ -288,7 +295,6 @@
     
     function calcEstimatedSize(seconds, quality) {
         let m = seconds / 60;
-        // الگوریتم تخمین بیت‌ریت مگابایت بر دقیقه
         const rates = { 'best': 85, '2160': 160, '1440': 100, '1080': 45, '720': 20, '480': 10, '360': 6, 'audio': 1.2 };
         return m * (rates[quality] || 25);
     }
@@ -313,7 +319,7 @@
         const quality = document.getElementById('quality').value;
         
         analysisData = [];
-        let key = ytKeys[0]; // در نسخه پیشرفته‌تر روی کلیدها لوپ می‌زنیم
+        let key = ytKeys[0]; 
 
         try {
             let res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoIds.join(',')}&key=${key}`);
@@ -360,18 +366,13 @@
         const subtitles = document.getElementById('subtitles').checked ? 'true' : 'false';
         const startBtn = document.getElementById('startBtn');
 
-        // Collision Check (بررسی تداخل اکانت‌ها)
-        let busyAccounts = activeTasks.filter(t => t.status !== 'success' && t.status !== 'failed').map(t => t.acc.repo);
+        let busyAccounts = activeTasks.filter(t => t.status !== 'success' && t.status !== 'failed' && t.status !== 'canceled').map(t => t.acc.repo);
         
-        // Load Balancing (حداکثر 11 فایل یا 3.5 گیگ در هر اکانت)
         let batches = []; let cur = { accIdx: 0, urls: [], mb: 0 };
         
         for(let v of analysisData) {
-            // پیدا کردن اکانت آزاد
-            while (cur.accIdx < accounts.length && busyAccounts.includes(accounts[cur.accIdx].repo)) {
-                cur.accIdx++;
-            }
-            if(cur.accIdx >= accounts.length) break; // اکانت آزادی نمانده
+            while (cur.accIdx < accounts.length && busyAccounts.includes(accounts[cur.accIdx].repo)) cur.accIdx++;
+            if(cur.accIdx >= accounts.length) break;
 
             if(cur.urls.length >= 11 || (cur.mb + v.mb) > 3500) { 
                 batches.push(cur); 
@@ -387,15 +388,15 @@
         if(batches.length === 0) return showToast('تمامی اکانت‌های شما در حال انجام کار هستند! صبر کنید.', true);
 
         if(analysisData.length > batches.flatMap(b=>b.urls).length) {
-            showToast('ظرفیت/تعداد اکانت‌های آزاد کافی نیست. مقداری از ویدیوها نادیده گرفته شدند.', true);
+            showToast('ظرفیت آزاد کافی نیست. مقداری از ویدیوها نادیده گرفته شدند.', true);
         }
 
-        startBtn.innerHTML = "⏳ در حال ارسال به سرور..."; startBtn.disabled = true;
+        startBtn.innerHTML = "⏳ در حال ارسال به کلاستر..."; startBtn.disabled = true;
 
         for(let b of batches) {
             const acc = accounts[b.accIdx];
             const tId = Date.now() + Math.random().toString(36).substr(2,5);
-            activeTasks.push({ id: tId, acc, status: 'queued', step: 'ارسال دستور به سرور...', started: Date.now() });
+            activeTasks.push({ id: tId, acc, status: 'queued', step: 'ارسال دستور به سرور...', started: Date.now(), ended: null, runId: null });
             saveState();
             
             fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/video-getter.yml/dispatches`, {
@@ -406,12 +407,12 @@
 
         document.getElementById('videoUrls').value = '';
         resetAnalysis();
-        showToast('🚀 دستورات به کلاستر ارسال شد.');
+        showToast('🚀 دستورات با موفقیت به کلاستر ارسال شد.');
         startMonitor();
     }
 
     // ==========================================
-    // 5. مانیتورینگ لایو گیت‌هاب (Progress & Timer)
+    // 5. مانیتورینگ لایو گیت‌هاب و لغو/حذف تسک
     // ==========================================
     let monitorTimer;
     function startMonitor() {
@@ -420,10 +421,10 @@
         monitorTimer = setInterval(async () => {
             let active = false;
             for(let t of activeTasks) {
-                if(t.status !== 'success' && t.status !== 'failed') { active = true; await checkTask(t); }
+                if(t.status !== 'success' && t.status !== 'failed' && t.status !== 'canceled') { active = true; await checkTask(t); }
             }
             if(active) renderVault(); else { clearInterval(monitorTimer); syncLiveVault(); updateAccountsSpace(); }
-        }, 8000); // 8 seconds polling for better UI sync
+        }, 8000); 
     }
 
     async function checkTask(task) {
@@ -434,9 +435,15 @@
             let run = data.workflow_runs.find(r => new Date(r.created_at).getTime() >= task.started - 60000 && r.name.includes("01"));
             
             if(run) {
+                task.runId = run.id; // ذخیره آیدی برای قابلیت لغو
+                
                 if(run.status === 'completed') {
-                    task.status = run.conclusion === 'success' ? 'success' : 'failed';
-                    task.step = task.status === 'success' ? 'عملیات موفقیت آمیز بود' : 'خطای سرور گیت‌هاب';
+                    if(run.conclusion === 'success') task.status = 'success';
+                    else if(run.conclusion === 'cancelled') task.status = 'canceled';
+                    else task.status = 'failed';
+                    
+                    task.step = task.status === 'success' ? 'عملیات موفقیت آمیز بود' : (task.status === 'canceled' ? 'لغو توسط کاربر' : 'خطای سرور گیت‌هاب');
+                    if(!task.ended) task.ended = Date.now(); // فریز کردن تایمر
                     saveState(); return;
                 }
                 
@@ -455,16 +462,42 @@
         } catch(e) {}
     }
 
+    // --- توابع لغو و حذف تسک ---
+    async function cancelTask(taskId) {
+        let t = activeTasks.find(x => x.id === taskId);
+        if(!t) return;
+        if(confirm('آیا مطمئن هستید که می‌خواهید عملیات دانلود این مخزن را لغو کنید؟')) {
+            t.status = 'canceled';
+            t.step = 'در حال لغو...';
+            t.ended = Date.now(); // فریز تایمر
+            saveState(); renderVault();
+            
+            if(t.runId) {
+                try {
+                    await fetch(`https://api.github.com/repos/${t.acc.owner}/${t.acc.repo}/actions/runs/${t.runId}/cancel`, {
+                        method: 'POST', headers: { 'Authorization': `Bearer ${t.acc.token}` }
+                    });
+                    showToast('دستور لغو به گیت‌هاب صادر شد.');
+                } catch(e) { showToast('خطا در ارتباط با سرور برای لغو', true); }
+            }
+        }
+    }
+
+    function removeTask(taskId) {
+        activeTasks = activeTasks.filter(t => t.id !== taskId);
+        saveState(); renderVault();
+    }
+
+    // --- محاسبه درصد و تایمر ---
     function getProgressPct(status, stepStr) {
-        if(status === 'success') return 100;
-        if(status === 'failed') return 100;
+        if(status === 'success' || status === 'failed' || status === 'canceled') return 100;
         if(status === 'queued') return 10;
         if(!stepStr) return 10;
         
         let s = stepStr.toLowerCase();
         if(s.includes('setup') || s.includes('checkout')) return 20;
         if(s.includes('warp') || s.includes('dependenc')) return 35;
-        if(s.includes('download')) return 70; // طولانی‌ترین مرحله
+        if(s.includes('download')) return 70;
         if(s.includes('commit') || s.includes('push')) return 90;
         return 50;
     }
@@ -472,14 +505,17 @@
     function updateTimersUI() {
         document.querySelectorAll('.task-timer').forEach(el => {
             let start = parseInt(el.getAttribute('data-start'));
-            let diff = Math.floor((Date.now() - start) / 1000);
+            let endStr = el.getAttribute('data-end');
+            let now = (endStr && endStr !== "null") ? parseInt(endStr) : Date.now();
+            let diff = Math.floor((now - start) / 1000);
+            if(diff < 0) diff = 0;
             let m = Math.floor(diff / 60); let s = diff % 60;
             el.innerText = `⏱ ${m}m ${s}s`;
         });
     }
 
     // ==========================================
-    // 6. سینک و رندر مخزن واقعی
+    // 6. سینک و رندر داشبورد اصلی
     // ==========================================
     async function syncLiveVault() {
         liveFiles = [];
@@ -513,15 +549,26 @@
         const box = document.getElementById('liveVault');
         box.innerHTML = '';
         
-        // Render Active Tasks
+        // --- 1. رندر تسک‌های فعال، خطا داده یا لغو شده ---
         activeTasks.forEach(t => {
             let pct = getProgressPct(t.status, t.step);
-            let color = t.status === 'failed' ? 'var(--danger)' : 'var(--accent)';
+            let color = (t.status === 'failed' || t.status === 'canceled') ? 'var(--danger)' : 'var(--accent)';
+            
+            let actionBtn = '';
+            if(t.status === 'failed' || t.status === 'canceled') {
+                actionBtn = `<button class="btn-small btn-danger-outline" onclick="removeTask('${t.id}')">✖ بستن لاگ</button>`;
+            } else if (t.status === 'queued' || t.status === 'running') {
+                actionBtn = `<button class="btn-small btn-warning-outline" onclick="cancelTask('${t.id}')">🛑 لغو دانلود</button>`;
+            }
+
             box.innerHTML += `
-            <div class="log-item">
+            <div class="log-item ${t.status === 'failed' ? 'failed' : ''} ${t.status === 'canceled' ? 'deleted' : ''}">
                 <div class="log-header">
-                    <span>⚙️ پردازش: <b>${t.acc.repo}</b></span>
-                    <span class="timer task-timer" data-start="${t.started}">⏱ 0m 0s</span>
+                    <span style="display:flex; align-items:center; gap:12px;">
+                        <span>⚙️ درگیر: <b>${t.acc.repo}</b></span>
+                        ${actionBtn}
+                    </span>
+                    <span class="timer task-timer" data-start="${t.started}" data-end="${t.ended || 'null'}">⏱ 0m 0s</span>
                 </div>
                 <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">${t.step}</div>
                 <div class="progress-container">
@@ -530,7 +577,7 @@
             </div>`;
         });
 
-        // Render Live Files
+        // --- 2. رندر فایل‌های آماده در مخزن ---
         liveFiles.forEach((block, idx) => {
             let filesHtml = block.files.map(f => `
                 <div class="file-row">
@@ -541,26 +588,29 @@
             box.innerHTML += `
             <div class="log-item ${block.deleted ? 'deleted' : 'success'}">
                 <div class="log-header">
-                    <span style="font-weight:bold; color:#fff;">📁 ${block.folder} <span style="font-size:10px; color:#888;">(${block.acc.repo})</span></span>
-                    <button class="btn-small" onclick="wipeSingle('${idx}')" ${block.deleted?'disabled':''} style="border-color:var(--danger); color:var(--danger);">🗑️ حذف</button>
+                    <span style="font-weight:bold; color:#fff; display:flex; align-items:center; gap:8px;">
+                        📁 ${block.folder} 
+                        <span style="font-size:0.75rem; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">${block.acc.repo}</span>
+                    </span>
+                    <button class="btn-small btn-danger-outline" onclick="wipeSingle('${idx}')" ${block.deleted?'disabled':''}>🗑️ حذف دائم</button>
                 </div>
                 ${filesHtml}
             </div>`;
         });
 
-        if(!activeTasks.length && !liveFiles.length) box.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">هیچ ویدیویی در سرورها وجود ندارد.</div>';
+        if(!activeTasks.length && !liveFiles.length) box.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">هیچ تسک یا ویدیویی در سرورها وجود ندارد.</div>';
     }
 
     function copyAllLinks() {
         let links = [];
         liveFiles.forEach(b => { if(!b.deleted) b.files.forEach(f => { if(f.health === 'ok') links.push(f.url); }) });
-        if(links.length === 0) return showToast('لینک سالمی برای کپی یافت نشد.', true);
+        if(links.length === 0) return showToast('لینک سالمی یافت نشد.', true);
         navigator.clipboard.writeText(links.join('\n'));
         showToast(`تعداد ${links.length} لینک در حافظه کپی شد.`);
     }
 
     // ==========================================
-    // 7. پروتکل پاکسازی اتمیک (متوالی)
+    // 7. پروتکل پاکسازی (حذف فایل + تاریخچه)
     // ==========================================
     async function executeWipeProtocol(acc, callback) {
         showToast(`درحال ارسال دستور حذف به ${acc.repo}...`);
@@ -603,7 +653,7 @@
 
     function saveState() { localStorage.setItem('av_tasks', JSON.stringify(activeTasks)); }
     
-    // Auto-Start Initializations
+    // Initializers
     if(accounts.length > 0) syncLiveVault();
     if(activeTasks.length > 0) startMonitor();
 </script>
