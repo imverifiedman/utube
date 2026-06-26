@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avasam YouTube Pro Panel 🪄</title>
+    <style>
+        /* ===== انیمیشن‌ها و بک‌گراند متحرک ===== */
+        @keyframes moveBg {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(100px, -50px) scale(1.2); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 123, 255, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); }
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Tahoma, 'Segoe UI', sans-serif;
+            background-color: #050510;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* هاله‌های نوری شیشه‌ای پس‌زمینه */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: moveBg 15s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(0, 110, 255, 0.3); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(0, 255, 200, 0.2); bottom: -50px; right: -50px; animation-delay: -5s; }
+
+        /* ===== استایل شیشه‌ای (Glassmorphism Windows 11) ===== */
+        .glass-panel {
+            background: rgba(20, 25, 40, 0.4);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 { text-align: center; margin-top: 0; font-weight: 300; letter-spacing: 1px; color: #e0f7fa; }
+        
+        .section-title {
+            font-size: 14px;
+            color: #00d2ff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+            margin: 25px 0 15px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label { display: block; font-size: 13px; margin-bottom: 8px; color: #b0bec5; }
+        
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #00d2ff;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        select option { background: #1a1a2e; color: #fff; }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .checkbox-container input { margin: 0 0 0 10px; width: 18px; height: 18px; cursor: pointer; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0062ff, #00d2ff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 110, 255, 0.4);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 110, 255, 0.6);
+        }
+        button:active { transform: translateY(0); }
+
+        .btn-small {
+            width: auto; padding: 5px 10px; font-size: 12px;
+            background: rgba(255,255,255,0.1); box-shadow: none;
+        }
+        
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row > div { flex: 1; }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .live-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #00d2ff;
+            text-decoration: none;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #00d2ff;
+        }
+        .live-link:hover { background: rgba(0, 210, 255, 0.2); }
+    </style>
+</head>
+<body>
+
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+
+<div class="glass-panel">
+    <h2>🪄 Avasam Pro Downloader</h2>
+
+    <!-- بخش مدیریت اکانت‌ها (پروفایل‌ها) -->
+    <div class="section-title">
+        <span>👤 تنظیمات سرور گیت‌هاب</span>
+        <button class="btn-small" onclick="saveProfile()">💾 ذخیره این اکانت</button>
+    </div>
+    
+    <select id="profileSelector" onchange="loadProfile()">
+        <option value="">-- یک اکانت ذخیره شده انتخاب کنید --</option>
+    </select>
+
+    <input type="password" id="ghToken" placeholder="توکن گیت‌هاب (PAT)">
+    
+    <div class="flex-row">
+        <div>
+            <input type="text" id="repoOwner" placeholder="یوزرنیم اکانت">
+        </div>
+        <div>
+            <input type="text" id="repoName" placeholder="نام مخزن (مثال: UDL)">
+        </div>
+    </div>
+    <div class="flex-row">
+        <div>
+            <!-- پیش‌فرض روی main است، اگر ارور داد کاربر می‌تواند آن را به master تغییر دهد -->
+            <input type="text" id="branchName" placeholder="برنچ (پیش‌فرض: main)" value="main">
+        </div>
+        <div>
+            <!-- رفع خطای Workflow -->
+            <input type="text" id="workflowFile" placeholder="فایل اکشن (video-getter.yml)" value="video-getter.yml">
+        </div>
+    </div>
+
+    <!-- بخش دانلود -->
+    <div class="section-title">📥 مشخصات ویدیو</div>
+
+    <label>لینک یوتیوب (چند لینک با فاصله):</label>
+    <input type="text" id="videoUrl" placeholder="https://youtube.com/watch?v=...">
+    
+    <div class="flex-row">
+        <div>
+            <label>کیفیت ویدیو:</label>
+            <select id="quality">
+                <option value="best">بهترین کیفیت 👑</option>
+                <option value="2160">2160p (4K)</option>
+                <option value="1440">1440p (2K)</option>
+                <option value="1080">1080p (FHD)</option>
+                <option value="720">720p (HD)</option>
+                <option value="480">480p</option>
+                <option value="audio">فقط صدا (MP3) 🎵</option>
+            </select>
+        </div>
+        <div>
+            <label>رمز فایل فشرده (اختیاری):</label>
+            <input type="text" id="password" placeholder="بدون رمز...">
+        </div>
+    </div>
+
+    <label class="checkbox-container">
+        <input type="checkbox" id="subtitles">
+        <span>📝 دانلود زیرنویس (فارسی و انگلیسی) درون فایل ZIP</span>
+    </label>
+    
+    <button id="startBtn" onclick="startDownload()">🚀 استارت عملیات دانلود</button>
+    
+    <div id="status" class="status-box"></div>
+</div>
+
+<script>
+    // ----- سیستم مدیریت پروفایل‌ها (اکانت‌های مختلف) -----
+    let profiles = JSON.parse(localStorage.getItem('avasamProfiles')) || [];
+
+    function renderProfiles() {
+        const select = document.getElementById('profileSelector');
+        select.innerHTML = '<option value="">-- یک اکانت ذخیره شده انتخاب کنید --</option>';
+        profiles.forEach((p, index) => {
+            select.innerHTML += `<option value="${index}">${p.owner} / ${p.repo}</option>`;
+        });
+    }
+
+    function saveProfile() {
+        const owner = document.getElementById('repoOwner').value.trim();
+        const repo = document.getElementById('repoName').value.trim();
+        const token = document.getElementById('ghToken').value.trim();
+        const branch = document.getElementById('branchName').value.trim() || 'main';
+        const workflow = document.getElementById('workflowFile').value.trim() || 'video-getter.yml';
+
+        if(!owner || !repo || !token) {
+            alert('برای ذخیره اکانت، توکن، یوزرنیم و نام مخزن الزامی است!');
+            return;
+        }
+
+        // اگر پروفایل از قبل بود آپدیت کن، وگرنه اضافه کن
+        const existingIndex = profiles.findIndex(p => p.owner === owner && p.repo === repo);
+        if(existingIndex > -1) {
+            profiles[existingIndex] = { owner, repo, token, branch, workflow };
+        } else {
+            profiles.push({ owner, repo, token, branch, workflow });
+        }
+
+        localStorage.setItem('avasamProfiles', JSON.stringify(profiles));
+        renderProfiles();
+        alert('✅ اکانت با موفقیت در مرورگر ذخیره شد!');
+    }
+
+    function loadProfile() {
+        const index = document.getElementById('profileSelector').value;
+        if(index !== "") {
+            const p = profiles[index];
+            document.getElementById('repoOwner').value = p.owner;
+            document.getElementById('repoName').value = p.repo;
+            document.getElementById('ghToken').value = p.token;
+            document.getElementById('branchName').value = p.branch || 'main';
+            document.getElementById('workflowFile').value = p.workflow || 'video-getter.yml';
+        }
+    }
+
+    window.onload = renderProfiles;
+
+    // ----- سیستم اتصال به گیت‌هاب -----
+    async function startDownload() {
+        const token = document.getElementById('ghToken').value.trim();
+        const owner = document.getElementById('repoOwner').value.trim();
+        const repo = document.getElementById('repoName').value.trim();
+        const branch = document.getElementById('branchName').value.trim() || 'main';
+        const workflow = document.getElementById('workflowFile').value.trim() || 'video-getter.yml';
+        
+        const url = document.getElementById('videoUrl').value.trim();
+        const quality = document.getElementById('quality').value;
+        const password = document.getElementById('password').value.trim();
+        const subtitles = document.getElementById('subtitles').checked ? "true" : "false"; // گیت‌هاب بولین متنی میپذیرد
+        
+        if(!token || !owner || !repo || !url || !workflow) {
+            showStatus("❌ فیلدهای ضروری (لینک، توکن، یوزرنیم، مخزن و فایل اکشن) را پر کنید!", "rgba(255, 50, 50, 0.2)", "#ff6b6b");
+            return;
+        }
+        
+        const btn = document.getElementById('startBtn');
+        btn.innerHTML = "⏳ در حال برقراری ارتباط...";
+        btn.style.animation = "pulse 1.5s infinite";
+        
+        showStatus("📡 در حال ارسال درخواست به سرورهای گیت‌هاب...", "rgba(255, 255, 255, 0.1)", "#fff");
+
+        // آدرس API اجرای ورک‌فلو
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflow}/dispatches`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ref: branch,
+                    inputs: { 
+                        video_urls: url, 
+                        quality: quality, 
+                        download_subtitles: subtitles,
+                        password: password
+                    }
+                })
+            });
+
+            if (response.ok) {
+                const actionsUrl = `https://github.com/${owner}/${repo}/actions`;
+                
+                showStatus(`✅ <b>دستور با موفقیت به سرور ارسال شد!</b><br><br>سرور در حال دانلود ویدیو است. برای دیدن درصد دانلود به صورت زنده، روی لینک زیر کلیک کنید:<br><a href="${actionsUrl}" target="_blank" class="live-link">📺 مشاهده زنده وضعیت دانلود در گیت‌هاب</a>`, "rgba(0, 255, 128, 0.15)", "#00e676", true);
+                
+                document.getElementById('videoUrl').value = ''; 
+            } else {
+                const err = await response.json();
+                let errMsg = err.message;
+                
+                if (errMsg.includes('not have')) {
+                    errMsg = "نام فایل اکشن اشتباه است یا در این برنچ وجود ندارد. در باکس 'فایل اکشن' دقت کنید.";
+                } else if (errMsg.includes('Not Found')) {
+                    errMsg = "مخزن یافت نشد یا توکن شما دسترسی repo ندارد.";
+                }
+
+                showStatus(`❌ <b>خطا:</b> ${errMsg}`, "rgba(255, 50, 50, 0.2)", "#ff8787");
+            }
+        } catch (error) {
+            showStatus("❌ خطای شبکه! بررسی کنید VPN خاموش نباشد.", "rgba(255, 50, 50, 0.2)", "#ff8787");
+        }
+
+        btn.innerHTML = "🚀 استارت عملیات دانلود";
+        btn.style.animation = "none";
+    }
+
+    function showStatus(text, bg, color, isHTML = false) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = bg;
+        statusDiv.style.color = color;
+        statusDiv.style.border = `1px solid ${color}40`;
+        if (isHTML) {
+            statusDiv.innerHTML = text;
+        } else {
+            statusDiv.innerText = text;
+        }
+    }
+</script>
+
+</body>
+</html>
