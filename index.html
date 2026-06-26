@@ -3,469 +3,500 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avasam Cloud Downloader ☁️</title>
+    <title>Avasam Core | YouTube Downloader</title>
     <style>
-        /* --- انیمیشن‌ها و استایل‌های پایه --- */
-        @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        body { margin: 0; padding: 20px; font-family: Tahoma, 'Segoe UI', sans-serif; background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e); background-size: 400% 400%; animation: bgMove 15s ease infinite; color: #fff; min-height: 100vh; display: flex; gap: 20px; }
+        /* --- Typography & Base --- */
+        @font-face { font-family: 'YekanBakh'; src: url('YekanBakh.woff') format('woff'); font-weight: normal; }
+        :root { --red-glow: rgba(255, 20, 40, 0.15); --glass-bg: rgba(15, 15, 15, 0.6); --glass-border: rgba(255, 255, 255, 0.08); --text-main: #eaeaea; --text-muted: #888; --success: #2ecc71; --danger: #e74c3c; --accent: #ff2a40; }
         
-        /* --- گلس مورفیسم --- */
-        .glass { background: rgba(20, 20, 30, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); padding: 25px; }
+        body { margin: 0; padding: 20px; font-family: 'YekanBakh', Tahoma, sans-serif; background-color: #050505; color: var(--text-main); min-height: 100vh; display: flex; gap: 25px; overflow-x: hidden; }
         
-        .sidebar { width: 350px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        /* --- Animated Background --- */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; animation: float 12s infinite alternate ease-in-out; }
+        .light-1 { width: 50vw; height: 50vw; background: rgba(220, 20, 50, 0.12); top: -20%; left: -10%; }
+        .light-2 { width: 40vw; height: 40vw; background: rgba(150, 0, 20, 0.1); bottom: -10%; right: -10%; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.1); } }
+
+        /* --- Glassmorphism UI --- */
+        .glass { background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
         
-        h2, h3 { margin-top: 0; color: #00d2ff; font-weight: 300; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        /* --- Layout --- */
+        .sidebar { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+        .main { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; max-width: calc(100vw - 380px); }
+        @media (max-width: 900px) { body { flex-direction: column; padding: 10px; } .sidebar, .main { width: 100%; max-width: 100%; } }
+
+        /* --- Components --- */
+        h2, h3 { margin: 0 0 15px 0; font-weight: bold; color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+        h2::before, h3::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--accent); border-radius: 4px; margin-left: 10px; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus, select:focus, textarea:focus { border-color: #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
-        select option { background: #1a1a2e; }
+        input, select, textarea { width: 100%; padding: 12px 15px; margin-bottom: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.3s; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+        select option { background: #111; color: #fff; }
         
-        button { padding: 12px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; color: white; width: 100%; }
-        .btn-primary { background: linear-gradient(135deg, #0062ff, #00d2ff); }
-        .btn-primary:hover { box-shadow: 0 0 15px rgba(0, 210, 255, 0.6); }
-        .btn-danger { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
-        .btn-danger:hover { box-shadow: 0 0 15px rgba(255, 65, 108, 0.6); }
-        .btn-small { padding: 6px 10px; font-size: 12px; width: auto; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .flex-row input { margin-bottom: 0; }
         
-        .account-badge { background: rgba(0, 210, 255, 0.2); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin: 2px; border: 1px solid rgba(0, 210, 255, 0.4); }
+        button { padding: 12px 20px; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; cursor: pointer; transition: 0.3s; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #d31027, #ea384d); width: 100%; font-weight: bold; }
+        .btn-primary:hover { box-shadow: 0 5px 20px rgba(234, 56, 77, 0.4); transform: translateY(-2px); }
+        .btn-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; width: auto; flex-shrink: 0; }
+        .btn-icon:hover { background: rgba(255,255,255,0.1); }
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.1); border-radius: 6px; width: auto; }
         
-        /* --- تسک‌ها و فایل‌ها --- */
-        .task-card { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: 0.3s; }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .status-running { background: #f39c12; color: #000; animation: pulse 1s infinite alternate; }
-        .status-success { background: #2ecc71; color: #000; }
-        .status-failed { background: #e74c3c; color: #fff; }
-        @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .badge { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
+        .badge-remove { color: var(--danger); cursor: pointer; font-weight: bold; }
+
+        /* --- Stats & Logs --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; }
+        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin: 5px 0; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+        .log-container { display: flex; flex-direction: column; gap: 12px; }
+        .log-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; transition: 0.3s; }
+        .log-item.success { border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05); }
+        .log-item.deleted { border-color: rgba(231, 76, 60, 0.4); background: rgba(231, 76, 60, 0.05); filter: grayscale(1); opacity: 0.7; }
         
-        .file-list { margin-top: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; font-size: 13px; }
-        .file-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .file-item a { color: #00d2ff; text-decoration: none; }
-        .file-item a:hover { text-decoration: underline; }
+        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;}
+        .log-step { font-size: 0.85rem; color: #aaa; font-family: monospace; }
+        
+        .file-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.85rem; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .file-row a { color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .file-row a:hover { color: var(--accent); }
+        
+        /* --- Custom Toast Notification --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+        .toast { background: rgba(20, 20, 25, 0.9); backdrop-filter: blur(10px); border-left: 4px solid var(--accent); padding: 15px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease forwards; display: flex; align-items: center; gap: 10px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
     </style>
 </head>
 <body>
 
-    <!-- سایدبار: تنظیمات و اکانت‌ها -->
-    <div class="sidebar glass">
-        <h3>⚙️ تنظیمات هسته</h3>
-        <label>کلید API یوتیوب (YouTube Data API v3):</label>
-        <input type="password" id="ytApiKey" placeholder="برای تخمین حجم الزامی است" onchange="saveSettings()">
-        <hr style="border-color: rgba(255,255,255,0.1);">
-        
-        <h3>👥 مدیریت مخازن (اکانت‌ها)</h3>
-        <input type="text" id="accOwner" placeholder="یوزرنیم گیت‌هاب">
-        <input type="text" id="accRepo" placeholder="نام مخزن (Repo)">
-        <input type="password" id="accToken" placeholder="توکن گیت‌هاب (PAT)">
-        <input type="text" id="accBranch" placeholder="نام برنچ (معمولا main یا master)" value="main">
-        <button class="btn-primary" style="margin-bottom: 15px;" onclick="addAccount()">+ افزودن مخزن به سیستم</button>
-        
-        <div id="accountsList" style="max-height: 150px; overflow-y: auto;"></div>
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+    <div id="toast-container"></div>
+
+    <!-- سایدبار تنظیمات -->
+    <div class="sidebar">
+        <div class="glass">
+            <h3>کلیدهای API یوتیوب</h3>
+            <div class="flex-row">
+                <input type="password" id="newYtKey" placeholder="وارد کردن توکن جدید...">
+                <button class="btn-icon" onclick="addYtKey()">+</button>
+            </div>
+            <div id="ytKeysList" class="badge-list"></div>
+        </div>
+
+        <div class="glass">
+            <h3>مدیریت اکانت‌ها (گیت‌هاب)</h3>
+            <input type="text" id="accOwner" placeholder="یوزرنیم اکانت">
+            <input type="text" id="accRepo" placeholder="نام مخزن (مثال: UDL)">
+            <input type="password" id="accToken" placeholder="توکن گیت‌هاب (PAT)">
+            <button class="btn-primary" onclick="addAccount()" style="margin-bottom: 15px;">افزودن اکانت</button>
+            <div id="accountsList" class="badge-list"></div>
+        </div>
     </div>
 
-    <!-- بخش اصلی: دانلود و مانیتورینگ -->
-    <div class="main-content glass">
-        <h3>🚀 عملیات هوشمند دانلود</h3>
-        <textarea id="videoUrls" rows="3" placeholder="لینک‌های یوتیوب را اینجا پیست کنید (با فاصله یا خط جدید جدا کنید)"></textarea>
-        
-        <div style="display: flex; gap: 15px;">
-            <select id="quality" style="flex: 1;">
-                <option value="best">بهترین کیفیت 👑</option>
-                <option value="1080">1080p FHD</option>
-                <option value="720">720p HD</option>
-                <option value="audio">فقط صدا 🎵</option>
-            </select>
-            <input type="text" id="password" placeholder="رمز فایل ZIP (اختیاری)" style="flex: 1;">
-            <label style="display:flex; align-items:center; gap:5px; flex:1;">
-                <input type="checkbox" id="subtitles" style="width:auto; margin:0;"> زیرنویس
-            </label>
+    <!-- بخش اصلی -->
+    <div class="main">
+        <div class="glass">
+            <h3>دانلودر مرکزی</h3>
+            <textarea id="videoUrls" rows="3" placeholder="لینک‌های یوتیوب (با فاصله جدا کنید)..."></textarea>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                <select id="quality">
+                    <option value="best">👑 بهترین کیفیت</option>
+                    <option value="2160">4K (2160p)</option>
+                    <option value="1440">2K (1440p)</option>
+                    <option value="1080">FHD (1080p)</option>
+                    <option value="720">HD (720p)</option>
+                    <option value="480">SD (480p)</option>
+                    <option value="360">Low (360p)</option>
+                    <option value="audio">🎵 فقط صدا (MP3)</option>
+                </select>
+                <input type="text" id="password" placeholder="رمز فایل فشرده (اختیاری)">
+                <label style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); cursor:pointer;">
+                    <input type="checkbox" id="subtitles" style="width: auto; margin: 0;"> زیرنویس
+                </label>
+            </div>
+            
+            <button class="btn-primary" id="startBtn" onclick="processDownloads()">🚀 آغاز پردازش و دانلود توزیع‌شده</button>
         </div>
-        
-        <button class="btn-primary" onclick="startSmartDownload()" id="startBtn" style="font-size: 16px;">🔥 شروع توزیع و دانلود خودکار</button>
-        
-        <h3 style="margin-top: 20px; display: flex; justify-content: space-between;">
-            <span>📊 داشبورد وضعیت و لینک‌ها</span>
-            <button class="btn-small btn-primary" onclick="refreshDashboard()">🔄 رفرش دستی</button>
-        </h3>
-        <div id="dashboard" style="overflow-y: auto; flex-grow: 1;">
-            <!-- تسک‌ها اینجا رندر میشوند -->
+
+        <!-- آمار کلی -->
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-val" id="stTotalLinks">0</div><div class="stat-label">تعداد لینک‌ها</div></div>
+            <div class="stat-box"><div class="stat-val" id="stTotalTime">0h 0m</div><div class="stat-label">مجموع زمان</div></div>
+            <div class="stat-box"><div class="stat-val" id="stTotalSize">0 GB</div><div class="stat-label">تخمین حجم</div></div>
+        </div>
+
+        <!-- مانیتورینگ و مخزن زنده -->
+        <div class="glass" style="flex-grow: 1;">
+            <h3>
+                <span>مخزن زنده و لاگ سیستم</span>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-small" onclick="copyAllLinks()">📋 کپی کل لینک‌ها</button>
+                    <button class="btn-small" onclick="wipeAll()" style="color:var(--danger); border-color:var(--danger);">🔥 پاکسازی همه‌چیز</button>
+                    <button class="btn-small" onclick="syncLiveVault()">🔄 سینک مخزن</button>
+                </div>
+            </h3>
+            <div id="liveVault" class="log-container">
+                <div style="text-align:center; color:#666; padding: 20px;">در حال همگام‌سازی با گیت‌هاب...</div>
+            </div>
         </div>
     </div>
 
 <script>
     // ==========================================
-    // 1. مدیریت داده‌ها و LocalStorage
+    // 1. هسته مدیریت داده‌ها (State)
     // ==========================================
-    let settings = JSON.parse(localStorage.getItem('avasam_settings')) || { ytApi: '' };
-    let accounts = JSON.parse(localStorage.getItem('avasam_accounts')) || [];
-    let tasks = JSON.parse(localStorage.getItem('avasam_tasks')) || [];
+    let ytKeys = JSON.parse(localStorage.getItem('av_ytkeys')) || [];
+    let accounts = JSON.parse(localStorage.getItem('av_accounts')) || [];
+    let activeTasks = JSON.parse(localStorage.getItem('av_tasks')) || []; // تسک‌های درحال اجرا
+    let liveFiles = []; // فایل‌های واقعی سینک شده از گیت‌هاب
 
-    document.getElementById('ytApiKey').value = settings.ytApi;
+    const BRANCH = 'main'; // هاردکد شده
 
-    function saveSettings() {
-        settings.ytApi = document.getElementById('ytApiKey').value.trim();
-        localStorage.setItem('avasam_settings', JSON.stringify(settings));
+    // ==========================================
+    // 2. توابع UI و نوتیفیکیشن
+    // ==========================================
+    function showToast(msg, isError = false) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        if(isError) toast.style.borderLeftColor = 'var(--danger)';
+        toast.innerHTML = `${isError ? '❌' : '✨'} ${msg}`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
+    // --- مدیریت API یوتیوب ---
+    function addYtKey() {
+        const key = document.getElementById('newYtKey').value.trim();
+        if(!key) return;
+        if(!ytKeys.includes(key)) ytKeys.push(key);
+        localStorage.setItem('av_ytkeys', JSON.stringify(ytKeys));
+        document.getElementById('newYtKey').value = '';
+        renderKeys();
+    }
+    function removeYtKey(idx) { ytKeys.splice(idx, 1); localStorage.setItem('av_ytkeys', JSON.stringify(ytKeys)); renderKeys(); }
+    function renderKeys() {
+        const box = document.getElementById('ytKeysList');
+        box.innerHTML = ytKeys.length ? '' : '<span style="font-size:12px; color:#666;">کلیدی یافت نشد</span>';
+        ytKeys.forEach((k, i) => box.innerHTML += `<div class="badge">🔑 ...${k.slice(-6)} <span class="badge-remove" onclick="removeYtKey(${i})">✖</span></div>`);
+    }
+
+    // --- مدیریت اکانت‌ها ---
     function addAccount() {
         const owner = document.getElementById('accOwner').value.trim();
         const repo = document.getElementById('accRepo').value.trim();
         const token = document.getElementById('accToken').value.trim();
-        const branch = document.getElementById('accBranch').value.trim() || 'main';
-
-        if(!owner || !repo || !token) return alert('تمام فیلدهای اکانت الزامی است!');
+        if(!owner || !repo || !token) return showToast('تمام فیلدهای اکانت اجباری است', true);
         
-        accounts.push({ owner, repo, token, branch });
-        localStorage.setItem('avasam_accounts', JSON.stringify(accounts));
+        accounts.push({ owner, repo, token, id: Date.now() });
+        localStorage.setItem('av_accounts', JSON.stringify(accounts));
+        document.getElementById('accOwner').value = ''; document.getElementById('accRepo').value = ''; document.getElementById('accToken').value = '';
         renderAccounts();
-        document.getElementById('accOwner').value = '';
-        document.getElementById('accRepo').value = '';
+        syncLiveVault(); // آپدیت لایو
     }
-
-    function removeAccount(index) {
-        accounts.splice(index, 1);
-        localStorage.setItem('avasam_accounts', JSON.stringify(accounts));
-        renderAccounts();
-    }
-
+    function removeAccount(idx) { accounts.splice(idx, 1); localStorage.setItem('av_accounts', JSON.stringify(accounts)); renderAccounts(); }
     function renderAccounts() {
-        const list = document.getElementById('accountsList');
-        list.innerHTML = accounts.length ? '' : '<small>هیچ اکانتی متصل نیست.</small>';
-        accounts.forEach((acc, i) => {
-            list.innerHTML += `<div class="account-badge">
-                ${acc.owner}/${acc.repo} (${acc.branch}) 
-                <span style="color:red; cursor:pointer; font-weight:bold; margin-right:10px;" onclick="removeAccount(${i})">X</span>
-            </div>`;
-        });
+        const box = document.getElementById('accountsList');
+        box.innerHTML = accounts.length ? '' : '<span style="font-size:12px; color:#666;">اکانتی متصل نیست</span>';
+        accounts.forEach((a, i) => box.innerHTML += `<div class="badge">👤 ${a.owner}/${a.repo} <span class="badge-remove" onclick="removeAccount(${i})">✖</span></div>`);
     }
 
-    renderAccounts();
-    renderTasks();
+    renderKeys(); renderAccounts();
 
     // ==========================================
-    // 2. هسته پردازش یوتیوب و Load Balancer
+    // 3. موتور پردازش یوتیوب (تخمین حجم و زمان)
     // ==========================================
-    function parseDuration(durationStr) {
-        // تبدیل فرمت PT1H2M10S به ثانیه
-        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-        const matches = durationStr.match(regex);
-        let seconds = 0;
-        if (matches[1]) seconds += parseInt(matches[1]) * 3600;
-        if (matches[2]) seconds += parseInt(matches[2]) * 60;
-        if (matches[3]) seconds += parseInt(matches[3]);
-        return seconds;
-    }
-
-    async function getVideoDurations(videoIds) {
-        if (!settings.ytApi) return videoIds.map(() => 3600); // اگر کلید نبود، فرضی 1 ساعت در نظر میگیرد
-        try {
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}&key=${settings.ytApi}`);
-            const data = await res.json();
-            const durations = {};
-            data.items.forEach(item => { durations[item.id] = parseDuration(item.contentDetails.duration); });
-            return videoIds.map(id => durations[id] || 3600);
-        } catch (e) {
-            console.error(e);
-            return videoIds.map(() => 3600);
+    async function fetchYTData(videoIds) {
+        if(ytKeys.length === 0) return videoIds.map(() => 3600); // پیش‌فرض 1 ساعت
+        const idsString = videoIds.join(',');
+        
+        for(let key of ytKeys) {
+            try {
+                let res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${idsString}&key=${key}`);
+                if(res.ok) {
+                    let data = await res.json();
+                    let map = {};
+                    data.items.forEach(i => {
+                        let m = i.contentDetails.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+                        map[i.id] = (parseInt(m[1]||0)*3600) + (parseInt(m[2]||0)*60) + parseInt(m[3]||0);
+                    });
+                    return videoIds.map(id => map[id] || 3600);
+                }
+            } catch(e) {}
         }
+        showToast('تمام کلیدهای یوتیوب مسدود یا نامعتبرند. استفاده از تخمین فرضی.', true);
+        return videoIds.map(() => 3600);
     }
 
-    function estimateSizeMB(durationSec, quality) {
-        const mins = durationSec / 60;
-        switch(quality) {
-            case 'best': return mins * 80;
-            case '1080': return mins * 35;
-            case '720': return mins * 15;
-            case 'audio': return mins * 1.5;
-            default: return mins * 20;
-        }
+    function calcSize(seconds, q) {
+        const m = seconds/60;
+        const rates = { 'best':80, '2160':150, '1440':90, '1080':35, '720':15, '480':8, '360':5, 'audio':1.5 };
+        return m * (rates[q] || 20);
     }
 
-    async function startSmartDownload() {
-        if(accounts.length === 0) return alert('حداقل یک مخزن (اکانت) باید اضافه کنید!');
+    function updateStatsUI(totalSec, totalMB, count) {
+        document.getElementById('stTotalLinks').innerText = count;
+        document.getElementById('stTotalSize').innerText = (totalMB / 1024).toFixed(2) + ' GB';
+        let h = Math.floor(totalSec / 3600); let m = Math.floor((totalSec % 3600) / 60);
+        document.getElementById('stTotalTime').innerText = `${h}h ${m}m`;
+    }
+
+    // ==========================================
+    // 4. عملیات توزیع و استارت اکشن
+    // ==========================================
+    async function processDownloads() {
+        if(accounts.length === 0) return showToast('ابتدا یک اکانت گیت‌هاب اضافه کنید', true);
         const rawUrls = document.getElementById('videoUrls').value.trim().split(/\s+/).filter(u => u.length > 5);
-        if(rawUrls.length === 0) return alert('لینکی وارد نشده است!');
+        if(!rawUrls.length) return showToast('لینکی وارد نشده است', true);
 
         const quality = document.getElementById('quality').value;
         const password = document.getElementById('password').value;
         const subtitles = document.getElementById('subtitles').checked ? 'true' : 'false';
         const startBtn = document.getElementById('startBtn');
 
-        startBtn.innerText = "⏳ در حال آنالیز و تقسیم بار...";
-        startBtn.disabled = true;
+        startBtn.innerHTML = "⏳ در حال استخراج متا و محاسبه بار..."; startBtn.disabled = true;
 
-        // استخراج ID ویدیوها
-        const videoIds = rawUrls.map(url => {
-            const match = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
-            return match ? match[1] : null;
-        }).filter(id => id);
-
-        const durations = await getVideoDurations(videoIds);
+        const videoIds = rawUrls.map(u => { let m = u.match(/[?&]v=([^&]+)|youtu\.be\/([^?]+)/); return m ? (m[1]||m[2]) : null; }).filter(i=>i);
+        const durations = await fetchYTData(videoIds);
         
-        // ساخت آرایه ویدیوها با حجم تخمینی
-        const videoObjects = rawUrls.map((url, i) => ({
-            url: url,
-            sizeMB: estimateSizeMB(durations[i] || 3600, quality)
-        }));
+        let totalSec = 0; let totalMB = 0;
+        let vids = rawUrls.map((url, i) => {
+            let s = durations[i]||3600; let mb = calcSize(s, quality);
+            totalSec+=s; totalMB+=mb; return { url, mb };
+        });
+        
+        updateStatsUI(totalSec, totalMB, vids.length);
 
-        // الگوریتم توزیع بین اکانت‌ها (Bin Packing - حداکثر 3500 مگابایت و 11 فایل)
-        let batches = [];
-        let currentBatch = { accountIndex: 0, urls: [], totalSize: 0 };
-
-        for (let vid of videoObjects) {
-            if (currentBatch.urls.length >= 11 || (currentBatch.totalSize + vid.sizeMB) > 3500) {
-                batches.push(currentBatch);
-                currentBatch = { accountIndex: currentBatch.accountIndex + 1, urls: [], totalSize: 0 };
-            }
-            if (currentBatch.accountIndex >= accounts.length) {
-                alert(`⚠️ اکانت‌های شما پر شده‌اند! ${videoObjects.length - batches.flatMap(b=>b.urls).length} ویدیو از لیست حذف شدند. لطفاً اکانت اضافه کنید.`);
-                break;
-            }
-            currentBatch.urls.push(vid.url);
-            currentBatch.totalSize += vid.sizeMB;
+        // Load Balancing (Max 11 items or 3500MB per account)
+        let batches = []; let cur = { accIdx: 0, urls: [], mb: 0 };
+        for(let v of vids) {
+            if(cur.urls.length >= 11 || (cur.mb + v.mb) > 3500) { batches.push(cur); cur = { accIdx: cur.accIdx+1, urls: [], mb: 0 }; }
+            if(cur.accIdx >= accounts.length) { showToast(`ظرفیت اکانت‌ها پر شد. ${vids.length - batches.flatMap(b=>b.urls).length} ویدیو نادیده گرفته شد.`, true); break; }
+            cur.urls.push(v.url); cur.mb += v.mb;
         }
-        if (currentBatch.urls.length > 0 && currentBatch.accountIndex < accounts.length) {
-            batches.push(currentBatch);
-        }
+        if(cur.urls.length > 0 && cur.accIdx < accounts.length) batches.push(cur);
 
-        // ارسال درخواست‌ها به گیت‌هاب
-        for (let batch of batches) {
-            const acc = accounts[batch.accountIndex];
-            const urlString = batch.urls.join(' ');
+        // Dispatch
+        for(let b of batches) {
+            const acc = accounts[b.accIdx];
+            const tId = Date.now() + Math.random().toString(36).substr(2,5);
+            activeTasks.push({ id: tId, acc, status: 'queued', step: 'ارسال دستور به سرور...', started: Date.now() });
+            saveState();
             
-            const taskId = Date.now() + Math.floor(Math.random()*1000); // شناسه یکتا برای ردیابی
-            const task = {
-                id: taskId,
-                account: acc,
-                urls: batch.urls,
-                quality: quality,
-                status: 'در حال ارسال...',
-                statusCode: 'running',
-                links: [],
-                timestamp: Date.now()
-            };
-            tasks.unshift(task); // اضافه به ابتدای لیست
-            saveTasks();
-            renderTasks();
-
-            // فراخوانی API اکشن اصلی گیت‌هاب (video-getter.yml)
             fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/video-getter.yml/dispatches`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/vnd.github.v3+json', 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ref: acc.branch, inputs: { video_urls: urlString, quality: quality, download_subtitles: subtitles, password: password } })
-            }).then(res => {
-                if(!res.ok) {
-                    task.statusCode = 'failed';
-                    task.status = 'خطا در ارسال به گیت‌هاب';
-                    saveTasks(); renderTasks();
-                }
-            }).catch(e => {
-                task.statusCode = 'failed'; task.status = 'خطای شبکه'; saveTasks(); renderTasks();
-            });
+                method: 'POST', headers: { 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ref: BRANCH, inputs: { video_urls: b.urls.join(' '), quality, download_subtitles: subtitles, password } })
+            }).catch(() => showToast('خطا در ارتباط با سرور گیت‌هاب', true));
         }
 
         document.getElementById('videoUrls').value = '';
-        startBtn.innerText = "🔥 شروع توزیع و دانلود خودکار";
-        startBtn.disabled = false;
-        
-        // استارت چرخه مانیتورینگ
-        startMonitoring();
+        startBtn.innerHTML = "🚀 آغاز پردازش و دانلود توزیع‌شده"; startBtn.disabled = false;
+        showToast('دستورات با موفقیت به کلاستر ارسال شد.');
+        startMonitor();
     }
 
     // ==========================================
-    // 3. سیستم مانیتورینگ خودکار (Background Polling)
+    // 5. مانیتورینگ لایو گیت‌هاب
     // ==========================================
-    let monitorInterval = null;
-
-    function startMonitoring() {
-        if(monitorInterval) clearInterval(monitorInterval);
-        refreshDashboard();
-        monitorInterval = setInterval(refreshDashboard, 15000); // هر 15 ثانیه چک میکند
-    }
-
-    async function refreshDashboard() {
-        let hasRunningTasks = false;
-        for (let task of tasks) {
-            if (task.statusCode === 'running') {
-                hasRunningTasks = true;
-                await checkTaskStatus(task);
+    let monitorTimer;
+    function startMonitor() {
+        renderVault();
+        if(monitorTimer) clearInterval(monitorTimer);
+        monitorTimer = setInterval(async () => {
+            let active = false;
+            for(let t of activeTasks) {
+                if(t.status !== 'success' && t.status !== 'failed') { active = true; await checkTask(t); }
             }
-        }
-        renderTasks();
-        if(!hasRunningTasks && monitorInterval) {
-            clearInterval(monitorInterval);
-            monitorInterval = null;
-        }
-    }
-
-    async function checkTaskStatus(task) {
-        const acc = task.account;
-        try {
-            // یافتن آخرین اجرای این ورک‌فلو
-            const res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/video-getter.yml/runs?per_page=3`, {
-                headers: { 'Authorization': `Bearer ${acc.token}` }
-            });
-            const data = await res.json();
-            
-            if(data.workflow_runs && data.workflow_runs.length > 0) {
-                // چون گیت‌هاب Run ID را در جواب Dispatch نمیدهد، ما نزدیک‌ترین ران از نظر زمانی را پیدا میکنیم
-                const run = data.workflow_runs.find(r => new Date(r.created_at).getTime() >= task.timestamp - 60000);
-                
-                if (run) {
-                    if (run.status === 'in_progress' || run.status === 'queued') {
-                        task.status = `در حال پردازش در سرور (${run.status})...`;
-                    } else if (run.status === 'completed') {
-                        if (run.conclusion === 'success') {
-                            task.statusCode = 'success';
-                            task.status = 'دانلود موفق!';
-                            await fetchResultLinks(task); // دریافت اتوماتیک لینک‌ها
-                        } else {
-                            task.statusCode = 'failed';
-                            task.status = 'عملیات در گیت‌هاب با خطا مواجه شد!';
-                        }
-                    }
-                    saveTasks();
-                }
-            }
-        } catch (e) { console.error(e); }
-    }
-
-    // ==========================================
-    // 4. استخراج خودکار فایل‌ها از مخزن گیت‌هاب
-    // ==========================================
-    async function fetchResultLinks(task) {
-        const acc = task.account;
-        task.links = [];
-        try {
-            // دریافت لیست پوشه‌های داخل videos/
-            const res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/contents/videos?ref=${acc.branch}`, {
-                headers: { 'Authorization': `Bearer ${acc.token}` }
-            });
-            if(!res.ok) return;
-            const folders = await res.json();
-            
-            for (let folder of folders) {
-                if (folder.type === 'dir') {
-                    // دریافت فایل‌های داخل هر پوشه
-                    const filesRes = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/contents/${folder.path}?ref=${acc.branch}`, {
-                        headers: { 'Authorization': `Bearer ${acc.token}` }
-                    });
-                    const files = await filesRes.json();
-                    
-                    let folderLinks = { folderName: folder.name, files: [] };
-                    for (let file of files) {
-                        // فقط فایل‌های دانلودی (غیر از عکس و readme)
-                        if (!file.name.endsWith('.jpg') && !file.name.endsWith('.md')) {
-                            // تولید لینک Raw مستقیم
-                            const rawLink = `https://raw.githubusercontent.com/${acc.owner}/${acc.repo}/${acc.branch}/${file.path}`;
-                            folderLinks.files.push({ name: file.name, url: rawLink });
-                        }
-                    }
-                    if(folderLinks.files.length > 0) {
-                        task.links.push(folderLinks);
-                    }
-                }
-            }
-            saveTasks();
-        } catch(e) { console.error("Error fetching links:", e); }
-    }
-
-    // ==========================================
-    // 5. پاکسازی حرفه‌ای (بمب اتم)
-    // ==========================================
-    async function wipeAccount(accountIndex) {
-        if(!confirm('⚠️ هشدار شدید! آیا مطمئنید؟ با این کار تمام فایل‌های ویدیویی این اکانت حذف شده و تاریخچه مخزن کاملا پاکسازی میشود.')) return;
-        
-        const acc = accounts[accountIndex];
-        
-        // 1. اجرای cleaner
-        fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/cleaner.yml/dispatches`, {
-            method: 'POST',
-            headers: { 'Accept': 'application/vnd.github.v3+json', 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ref: acc.branch, inputs: { confirm_delete: "true" } })
-        });
-
-        alert('دستور حذف فایل‌ها ارسال شد. 10 ثانیه دیگر تاریخچه پاکسازی میشود...');
-        
-        // 2. با تاخیر history_cleaner اجرا شود
-        setTimeout(() => {
-            fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/history_cleaner.yml/dispatches`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/vnd.github.v3+json', 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ref: acc.branch, inputs: { info: "Run via Avasam Panel" } })
-            });
-            alert('دستور پاکسازی تاریخچه نیز ارسال شد. مخزن شما کاملا خالی و تمیز خواهد شد.');
+            if(active) renderVault(); else { clearInterval(monitorTimer); syncLiveVault(); }
         }, 10000);
     }
 
-    // ==========================================
-    // توابع کمکی رندر UI
-    // ==========================================
-    function saveTasks() { localStorage.setItem('avasam_tasks', JSON.stringify(tasks)); }
-    
-    function deleteTask(id) {
-        tasks = tasks.filter(t => t.id !== id);
-        saveTasks(); renderTasks();
+    async function checkTask(task) {
+        const acc = task.acc;
+        try {
+            // پیدا کردن ران فعال
+            let res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/runs?per_page=3`, { headers: { 'Authorization': `Bearer ${acc.token}` } });
+            let data = await res.json();
+            let run = data.workflow_runs.find(r => new Date(r.created_at).getTime() >= task.started - 60000 && r.name.includes("01"));
+            
+            if(run) {
+                if(run.status === 'completed') {
+                    task.status = run.conclusion === 'success' ? 'success' : 'failed';
+                    task.step = task.status === 'success' ? 'عملیات با موفقیت پایان یافت' : 'خطا در عملیات';
+                    saveState(); return;
+                }
+                
+                // گرفتن استپ‌های زنده (مانیتورینگ دقیق)
+                let jobRes = await fetch(run.jobs_url, { headers: { 'Authorization': `Bearer ${acc.token}` } });
+                let jobData = await jobRes.json();
+                if(jobData.jobs && jobData.jobs.length > 0) {
+                    let steps = jobData.jobs[0].steps;
+                    let currentStep = steps.reverse().find(s => s.status === 'in_progress' || s.status === 'completed');
+                    if(currentStep) task.step = currentStep.name;
+                }
+                saveState();
+            }
+        } catch(e) {}
     }
 
-    function renderTasks() {
-        const board = document.getElementById('dashboard');
-        board.innerHTML = '';
-        
-        if (tasks.length === 0) {
-            board.innerHTML = '<p style="color:#aaa; text-align:center;">هنوز دانلودی انجام نشده است.</p>';
-            return;
+    // ==========================================
+    // 6. سینک و رندر مخزن واقعی (Real Vault)
+    // ==========================================
+    async function syncLiveVault() {
+        showToast('در حال همگام‌سازی با مخازن...');
+        liveFiles = [];
+        for(let acc of accounts) {
+            try {
+                let res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/contents/videos?ref=${BRANCH}`, { headers: { 'Authorization': `Bearer ${acc.token}` } });
+                if(!res.ok) continue;
+                let folders = await res.json();
+                
+                for(let f of folders) {
+                    if(f.type === 'dir') {
+                        let fres = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/contents/${f.path}?ref=${BRANCH}`, { headers: { 'Authorization': `Bearer ${acc.token}` } });
+                        let files = await fres.json();
+                        let dlFiles = [];
+                        for(let file of files) {
+                            if(!file.name.endsWith('.jpg') && !file.name.endsWith('.md')) {
+                                let rawUrl = `https://raw.githubusercontent.com/${acc.owner}/${acc.repo}/${BRANCH}/${file.path}`;
+                                dlFiles.push({ name: file.name, url: rawUrl, health: 'checking' });
+                            }
+                        }
+                        if(dlFiles.length > 0) liveFiles.push({ acc, folder: f.name, files: dlFiles, deleted: false });
+                    }
+                }
+            } catch(e) {}
         }
+        
+        // پاک کردن تسک‌های قدیمی موفق، چون حالا در liveFiles هستند
+        activeTasks = activeTasks.filter(t => t.status !== 'success');
+        saveState();
+        renderVault();
+        checkLinksHealth();
+    }
 
-        tasks.forEach(task => {
-            let badgeClass = 'status-running';
-            if(task.statusCode === 'success') badgeClass = 'status-success';
-            if(task.statusCode === 'failed') badgeClass = 'status-failed';
-
-            let linksHtml = '';
-            if (task.links && task.links.length > 0) {
-                task.links.forEach(group => {
-                    linksHtml += `<div style="margin-top:10px; color:#00d2ff; font-weight:bold;">📁 ${group.folderName}</div>`;
-                    group.files.forEach(f => {
-                        linksHtml += `<div class="file-item"><span>📄 ${f.name}</span> <a href="${f.url}" target="_blank">⬇️ دانلود</a></div>`;
-                    });
-                });
-                linksHtml = `<div class="file-list">${linksHtml}</div>`;
+    async function checkLinksHealth() {
+        for(let block of liveFiles) {
+            if(block.deleted) continue;
+            for(let f of block.files) {
+                try {
+                    // چک کردن هدر برای دیدن زنده بودن لینک بدون دانلود آن
+                    let res = await fetch(f.url, { method: 'HEAD' });
+                    f.health = res.ok ? 'ok' : 'dead';
+                } catch(e) { f.health = 'dead'; }
             }
+        }
+        renderVault();
+    }
 
-            // آدرس اکشن برای لاگ زنده
-            const logLink = `https://github.com/${task.account.owner}/${task.account.repo}/actions`;
-
-            board.innerHTML += `
-                <div class="task-card">
-                    <div class="task-header">
-                        <div>
-                            <span class="account-badge">👤 ${task.account.owner}/${task.account.repo}</span>
-                            <a href="${logLink}" target="_blank" style="color:#aaa; font-size:12px; margin-right:10px;">(مشاهده لاگ سرور)</a>
-                        </div>
-                        <div>
-                            <span class="status-badge ${badgeClass}">${task.status}</span>
-                            <button class="btn-small btn-danger" style="margin-right:5px;" onclick="deleteTask(${task.id})">❌</button>
-                        </div>
-                    </div>
-                    <div style="font-size:12px; color:#ccc; word-break: break-all;">
-                        🔗 تعداد لینک‌ها: ${task.urls.length} (کیفیت: ${task.quality})
-                    </div>
-                    ${linksHtml}
-                    
-                    ${task.statusCode === 'success' ? `
-                    <div style="margin-top:10px; text-align:left;">
-                        <button class="btn-small btn-danger" onclick="wipeAccount(${accounts.findIndex(a => a.repo === task.account.repo)})">🗑️ پاکسازی کامل این مخزن</button>
-                    </div>` : ''}
+    function renderVault() {
+        const box = document.getElementById('liveVault');
+        box.innerHTML = '';
+        
+        // رندر تسک‌های در حال اجرا (مانیتورینگ)
+        activeTasks.forEach(t => {
+            let color = t.status === 'failed' ? 'var(--danger)' : '#f39c12';
+            box.innerHTML += `
+            <div class="log-item">
+                <div class="log-header">
+                    <span>⚙️ پردازش روی: <b>${t.acc.repo}</b></span>
+                    <span class="badge" style="color:${color}">${t.status === 'queued' ? 'در صف' : t.status === 'failed' ? 'شکست' : 'در حال اجرا'}</span>
                 </div>
-            `;
+                <div class="log-step">▶ آخرین وضعیت: ${t.step}</div>
+            </div>`;
+        });
+
+        // رندر فایل‌های واقعی سینک شده
+        liveFiles.forEach((block, idx) => {
+            let filesHtml = block.files.map(f => {
+                let icon = f.health === 'ok' ? '✅' : (f.health === 'dead' ? '❌' : '⏳');
+                return `<div class="file-row">
+                    <a href="${f.url}" target="_blank">🎬 ${f.name}</a>
+                    <span>${icon}</span>
+                </div>`;
+            }).join('');
+
+            box.innerHTML += `
+            <div class="log-item ${block.deleted ? 'deleted' : 'success'}" id="block-${idx}">
+                <div class="log-header">
+                    <span>📁 <b>${block.folder}</b> <span style="font-size:10px; color:#666;">(${block.acc.repo})</span></span>
+                    <button class="btn-small" onclick="wipeSingle('${idx}')" ${block.deleted?'disabled':''} style="border-color:var(--danger); color:var(--danger);">🗑️ حذف</button>
+                </div>
+                ${filesHtml}
+                ${block.deleted ? '<div style="color:var(--danger); font-size:12px; margin-top:10px; text-align:center;">این ویدیو از مخزن حذف شده است.</div>' : ''}
+            </div>`;
+        });
+
+        if(!activeTasks.length && !liveFiles.length) box.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">مخزن خالی است.</div>';
+    }
+
+    function copyAllLinks() {
+        let links = [];
+        liveFiles.forEach(b => { if(!b.deleted) b.files.forEach(f => { if(f.health === 'ok') links.push(f.url); }) });
+        if(links.length === 0) return showToast('لینک سالمی برای کپی یافت نشد.', true);
+        navigator.clipboard.writeText(links.join('\n'));
+        showToast(`تعداد ${links.length} لینک سالم در کلیپ‌بورد کپی شد.`);
+    }
+
+    // ==========================================
+    // 7. پروتکل پاکسازی اتمیک (متوالی و هوشمند)
+    // ==========================================
+    async function executeWipeProtocol(acc, callback) {
+        showToast(`در حال حذف ویدیوها از مخزن ${acc.repo}...`);
+        try {
+            // 1. اجرای Cleaner
+            await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/cleaner.yml/dispatches`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ref: BRANCH, inputs: { confirm_delete: "true" } })
+            });
+
+            // صبر میکنیم 15 ثانیه تا اکشن حذف کارش را بکند
+            setTimeout(async () => {
+                showToast(`در حال پاکسازی تاریخچه زباله گیت‌هاب (${acc.repo})...`);
+                // 2. اجرای History Cleaner
+                await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/history_cleaner.yml/dispatches`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ref: BRANCH, inputs: { info: "Auto-triggered" } })
+                });
+                showToast(`پاکسازی ${acc.repo} با موفقیت در سرور ثبت شد.`);
+                if(callback) callback();
+            }, 15000);
+        } catch(e) { showToast('خطا در ارتباط با سرور برای پاکسازی', true); }
+    }
+
+    function wipeSingle(idx) {
+        let block = liveFiles[idx];
+        if(!block || block.deleted) return;
+        executeWipeProtocol(block.acc, () => {
+            // تغییر وضعیت ظاهری به حذف شده بدون رفرش کل
+            block.deleted = true;
+            block.files.forEach(f => f.health = 'dead');
+            renderVault();
         });
     }
 
-    // استارت اولیه پایش در صورت وجود تسک نیمه کاره
-    if(tasks.some(t => t.statusCode === 'running')) startMonitoring();
+    function wipeAll() {
+        if(accounts.length === 0) return;
+        showToast('🔥 پروتکل انهدام کلی استارت خورد...');
+        accounts.forEach(acc => executeWipeProtocol(acc, () => {
+            liveFiles.forEach(b => { if(b.acc.repo === acc.repo) { b.deleted = true; b.files.forEach(f=>f.health='dead'); }});
+            renderVault();
+        }));
+    }
 
+    // Utils
+    function saveState() { localStorage.setItem('av_tasks', JSON.stringify(activeTasks)); }
+    
+    // Auto-Start
+    if(accounts.length > 0) syncLiveVault();
+    if(activeTasks.length > 0) startMonitor();
 </script>
 </body>
 </html>
