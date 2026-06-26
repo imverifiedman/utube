@@ -3,73 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avasam Core | YouTube Downloader</title>
+    <title>Avasam Core | Win11 Edition</title>
     <style>
         /* --- Typography & Base --- */
         @font-face { font-family: 'YekanBakh'; src: url('YekanBakh.woff') format('woff'); font-weight: normal; }
-        :root { --red-glow: rgba(255, 20, 40, 0.15); --glass-bg: rgba(15, 15, 15, 0.6); --glass-border: rgba(255, 255, 255, 0.08); --text-main: #eaeaea; --text-muted: #888; --success: #2ecc71; --danger: #e74c3c; --accent: #ff2a40; }
+        :root { 
+            --accent: #ff2a40; --accent-hover: #ff4a5d; 
+            --glass-bg: rgba(20, 20, 20, 0.5); --glass-border: rgba(255, 255, 255, 0.08); 
+            --text-main: #f5f5f5; --text-muted: #a0a0a0; 
+            --success: #2ecc71; --danger: #e74c3c; --warning: #f1c40f;
+        }
         
-        body { margin: 0; padding: 20px; font-family: 'YekanBakh', Tahoma, sans-serif; background-color: #050505; color: var(--text-main); min-height: 100vh; display: flex; gap: 25px; overflow-x: hidden; }
+        body { margin: 0; padding: 25px; font-family: 'YekanBakh', Tahoma, sans-serif; background-color: #000; color: var(--text-main); min-height: 100vh; display: flex; gap: 30px; overflow-x: hidden; text-align: right; }
         
-        /* --- Animated Background --- */
-        .ambient-light { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; animation: float 12s infinite alternate ease-in-out; }
-        .light-1 { width: 50vw; height: 50vw; background: rgba(220, 20, 50, 0.12); top: -20%; left: -10%; }
-        .light-2 { width: 40vw; height: 40vw; background: rgba(150, 0, 20, 0.1); bottom: -10%; right: -10%; animation-delay: -5s; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.1); } }
+        /* --- Animated Ambient Background --- */
+        .ambient-light { position: fixed; border-radius: 50%; filter: blur(140px); z-index: -1; animation: float 15s infinite alternate ease-in-out; }
+        .light-1 { width: 50vw; height: 50vw; background: rgba(220, 20, 50, 0.15); top: -20%; right: -10%; }
+        .light-2 { width: 45vw; height: 45vw; background: rgba(100, 0, 20, 0.15); bottom: -10%; left: -10%; animation-delay: -7s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-30px, 40px) scale(1.1); } }
 
-        /* --- Glassmorphism UI --- */
-        .glass { background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        /* --- Windows 11 Glassmorphism --- */
+        .glass { background: var(--glass-bg); backdrop-filter: blur(35px) saturate(150%); -webkit-backdrop-filter: blur(35px) saturate(150%); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         
         /* --- Layout --- */
-        .sidebar { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
-        .main { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; max-width: calc(100vw - 380px); }
-        @media (max-width: 900px) { body { flex-direction: column; padding: 10px; } .sidebar, .main { width: 100%; max-width: 100%; } }
+        .sidebar { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+        .main { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; max-width: calc(100vw - 420px); }
+        @media (max-width: 1024px) { body { flex-direction: column; padding: 15px; } .sidebar, .main { width: 100%; max-width: 100%; } }
 
         /* --- Components --- */
-        h2, h3 { margin: 0 0 15px 0; font-weight: bold; color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+        h2, h3 { margin: 0 0 20px 0; font-weight: bold; color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
         h2::before, h3::before { content: ''; display: inline-block; width: 4px; height: 18px; background: var(--accent); border-radius: 4px; margin-left: 10px; }
         
-        input, select, textarea { width: 100%; padding: 12px 15px; margin-bottom: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.3s; box-sizing: border-box; }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+        input, select, textarea { width: 100%; padding: 12px 16px; margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.3s; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: rgba(255, 42, 64, 0.5); background: rgba(255,255,255,0.06); box-shadow: 0 0 15px rgba(255, 42, 64, 0.1); }
         select option { background: #111; color: #fff; }
         
-        .flex-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-        .flex-row input { margin-bottom: 0; }
+        .flex-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+        .flex-row input, .flex-row select { margin-bottom: 0; }
         
-        button { padding: 12px 20px; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; cursor: pointer; transition: 0.3s; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #d31027, #ea384d); width: 100%; font-weight: bold; }
-        .btn-primary:hover { box-shadow: 0 5px 20px rgba(234, 56, 77, 0.4); transform: translateY(-2px); }
+        button { padding: 12px 24px; border: 1px solid transparent; border-radius: 10px; font-family: inherit; font-size: 0.95rem; cursor: pointer; transition: 0.3s; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; }
+        .btn-primary { background: linear-gradient(135deg, #d31027, #ea384d); width: 100%; }
+        .btn-primary:hover { background: linear-gradient(135deg, #ea384d, #ff4a5d); box-shadow: 0 4px 15px rgba(234, 56, 77, 0.4); transform: translateY(-2px); }
         .btn-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px; width: auto; flex-shrink: 0; }
         .btn-icon:hover { background: rgba(255,255,255,0.1); }
-        .btn-small { padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.1); border-radius: 6px; width: auto; }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); width: 100%; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); }
+        .btn-small { padding: 6px 14px; font-size: 0.8rem; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 6px; width: auto; }
+        .btn-small:hover { background: rgba(255,255,255,0.15); }
         
-        .badge-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-        .badge { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
-        .badge-remove { color: var(--danger); cursor: pointer; font-weight: bold; }
+        /* --- Modern Checkbox (Toggle) --- */
+        .toggle-container { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px 16px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .toggle-container:hover { background: rgba(255,255,255,0.06); }
+        .toggle-switch { position: relative; width: 40px; height: 22px; background: rgba(255,255,255,0.2); border-radius: 20px; transition: 0.3s; }
+        .toggle-switch::after { content: ''; position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        input[type="checkbox"] { display: none; }
+        input[type="checkbox"]:checked + .toggle-container .toggle-switch { background: var(--accent); }
+        input[type="checkbox"]:checked + .toggle-container .toggle-switch::after { transform: translateX(-18px); }
 
-        /* --- Stats & Logs --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin: 5px 0; }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); }
+        /* --- Badges & Accounts --- */
+        .badge-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .badge { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 10px 15px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; }
+        .badge-remove { color: var(--danger); cursor: pointer; font-weight: bold; background: rgba(231, 76, 60, 0.1); padding: 2px 8px; border-radius: 4px; }
+        .capacity-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; position: relative; }
+        .capacity-fill { height: 100%; background: var(--accent); }
 
-        .log-container { display: flex; flex-direction: column; gap: 12px; }
-        .log-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; transition: 0.3s; }
-        .log-item.success { border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.05); }
-        .log-item.deleted { border-color: rgba(231, 76, 60, 0.4); background: rgba(231, 76, 60, 0.05); filter: grayscale(1); opacity: 0.7; }
+        /* --- Pre-flight Analyzer Table --- */
+        #analysisResult { display: none; margin-bottom: 20px; }
+        .table-glass { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; }
+        .table-glass th, .table-glass td { padding: 12px; text-align: right; border-bottom: 1px solid var(--glass-border); }
+        .table-glass th { background: rgba(255,255,255,0.05); color: var(--text-muted); font-weight: normal; }
+        .table-glass tr:last-child td { border-bottom: none; }
+        .thumb-img { width: 60px; border-radius: 6px; }
+
+        /* --- Live Action Tracker (Progress) --- */
+        .log-item { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 18px; transition: 0.3s; margin-bottom: 12px; }
+        .log-item.success { border-color: rgba(46, 204, 113, 0.3); }
+        .log-item.deleted { opacity: 0.5; filter: grayscale(1); }
+        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         
-        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;}
-        .log-step { font-size: 0.85rem; color: #aaa; font-family: monospace; }
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #ff2a40, #ff7b00); width: 0%; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(255, 42, 64, 0.5); }
         
-        .file-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.85rem; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-        .file-row a { color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .timer { font-family: monospace; color: var(--text-muted); font-size: 0.8rem; }
+        .file-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 0.85rem; border-top: 1px dashed rgba(255,255,255,0.05); margin-top: 10px; }
+        .file-row a { color: #fff; text-decoration: none; transition: 0.3s; }
         .file-row a:hover { color: var(--accent); }
-        
-        /* --- Custom Toast Notification --- */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
-        .toast { background: rgba(20, 20, 25, 0.9); backdrop-filter: blur(10px); border-left: 4px solid var(--accent); padding: 15px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease forwards; display: flex; align-items: center; gap: 10px; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+
+        /* --- Toasts --- */
+        #toast-container { position: fixed; bottom: 25px; left: 25px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+        .toast { background: rgba(20, 20, 25, 0.85); backdrop-filter: blur(20px); border-right: 4px solid var(--accent); padding: 15px 20px; border-radius: 10px; color: #fff; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -81,20 +104,20 @@
     <!-- سایدبار تنظیمات -->
     <div class="sidebar">
         <div class="glass">
-            <h3>کلیدهای API یوتیوب</h3>
+            <h3>🔑 توکن‌های یوتیوب</h3>
             <div class="flex-row">
-                <input type="password" id="newYtKey" placeholder="وارد کردن توکن جدید...">
+                <input type="password" id="newYtKey" placeholder="Google API Key...">
                 <button class="btn-icon" onclick="addYtKey()">+</button>
             </div>
             <div id="ytKeysList" class="badge-list"></div>
         </div>
 
         <div class="glass">
-            <h3>مدیریت اکانت‌ها (گیت‌هاب)</h3>
-            <input type="text" id="accOwner" placeholder="یوزرنیم اکانت">
-            <input type="text" id="accRepo" placeholder="نام مخزن (مثال: UDL)">
-            <input type="password" id="accToken" placeholder="توکن گیت‌هاب (PAT)">
-            <button class="btn-primary" onclick="addAccount()" style="margin-bottom: 15px;">افزودن اکانت</button>
+            <h3>👤 کلاستر گیت‌هاب (مخازن)</h3>
+            <input type="text" id="accOwner" placeholder="نام کاربری (Owner)">
+            <input type="text" id="accRepo" placeholder="نام مخزن (Repository)">
+            <input type="password" id="accToken" placeholder="توکن شخصی (PAT)">
+            <button class="btn-outline" onclick="addAccount()" style="margin-bottom: 15px;">+ افزودن به استخر</button>
             <div id="accountsList" class="badge-list"></div>
         </div>
     </div>
@@ -102,48 +125,59 @@
     <!-- بخش اصلی -->
     <div class="main">
         <div class="glass">
-            <h3>دانلودر مرکزی</h3>
-            <textarea id="videoUrls" rows="3" placeholder="لینک‌های یوتیوب (با فاصله جدا کنید)..."></textarea>
+            <h3>🎬 دانلودر مرکزی یوتیوب</h3>
+            <textarea id="videoUrls" rows="3" placeholder="لینک‌های یوتیوب را اینجا پیست کنید (با فاصله یا خط جدید جدا کنید)..."></textarea>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
-                <select id="quality">
-                    <option value="best">👑 بهترین کیفیت</option>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <select id="quality" onchange="resetAnalysis()">
+                    <option value="best">👑 بهترین کیفیت (Auto)</option>
                     <option value="2160">4K (2160p)</option>
                     <option value="1440">2K (1440p)</option>
                     <option value="1080">FHD (1080p)</option>
                     <option value="720">HD (720p)</option>
                     <option value="480">SD (480p)</option>
-                    <option value="360">Low (360p)</option>
                     <option value="audio">🎵 فقط صدا (MP3)</option>
                 </select>
-                <input type="text" id="password" placeholder="رمز فایل فشرده (اختیاری)">
-                <label style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); cursor:pointer;">
-                    <input type="checkbox" id="subtitles" style="width: auto; margin: 0;"> زیرنویس
+                <input type="text" id="password" placeholder="رمزگذاری فایل ZIP (اختیاری)">
+                
+                <label>
+                    <input type="checkbox" id="subtitles">
+                    <div class="toggle-container">
+                        <span>📝 ادغام زیرنویس (Fa/En)</span>
+                        <div class="toggle-switch"></div>
+                    </div>
                 </label>
             </div>
             
-            <button class="btn-primary" id="startBtn" onclick="processDownloads()">🚀 آغاز پردازش و دانلود توزیع‌شده</button>
+            <div style="display: flex; gap: 15px;">
+                <button class="btn-outline" id="analyzeBtn" onclick="analyzeLinks()">🔍 آنالیز دقیق ویدیوها</button>
+                <button class="btn-primary" id="startBtn" onclick="processDownloads()" style="display: none;">🚀 شروع دانلود توزیع‌شده</button>
+            </div>
+
+            <!-- جدول آنالیز -->
+            <div id="analysisResult">
+                <h3 style="margin-top: 20px; font-size: 0.95rem; color: var(--text-muted);">📊 پیش‌نمایش اطلاعات (تخمین هوشمند حجم)</h3>
+                <table class="table-glass">
+                    <thead><tr><th>کاور</th><th>عنوان ویدیو</th><th>زمان</th><th>حجم تخمینی</th></tr></thead>
+                    <tbody id="analysisTableBody"></tbody>
+                </table>
+                <div style="text-align: left; font-size: 0.8rem; color: #888; margin-top: 10px;">
+                    * حجم‌ها بر اساس کیفیت انتخابی و فرمول بیت‌ریت محاسبه شده‌اند و ممکن است کمی با واقعیت تفاوت داشته باشند.
+                </div>
+            </div>
         </div>
 
-        <!-- آمار کلی -->
-        <div class="stats-grid">
-            <div class="stat-box"><div class="stat-val" id="stTotalLinks">0</div><div class="stat-label">تعداد لینک‌ها</div></div>
-            <div class="stat-box"><div class="stat-val" id="stTotalTime">0h 0m</div><div class="stat-label">مجموع زمان</div></div>
-            <div class="stat-box"><div class="stat-val" id="stTotalSize">0 GB</div><div class="stat-label">تخمین حجم</div></div>
-        </div>
-
-        <!-- مانیتورینگ و مخزن زنده -->
+        <!-- مانیتورینگ زنده -->
         <div class="glass" style="flex-grow: 1;">
             <h3>
-                <span>مخزن زنده و لاگ سیستم</span>
+                <span>📡 داشبورد زنده و مدیریت فایل‌ها</span>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-small" onclick="copyAllLinks()">📋 کپی کل لینک‌ها</button>
-                    <button class="btn-small" onclick="wipeAll()" style="color:var(--danger); border-color:var(--danger);">🔥 پاکسازی همه‌چیز</button>
-                    <button class="btn-small" onclick="syncLiveVault()">🔄 سینک مخزن</button>
+                    <button class="btn-small" onclick="copyAllLinks()">📋 کپی لینک‌های سالم</button>
+                    <button class="btn-small" onclick="wipeAll()" style="color:var(--danger); border-color:var(--glass-border);">🔥 پاکسازی کل سرورها</button>
                 </div>
             </h3>
-            <div id="liveVault" class="log-container">
-                <div style="text-align:center; color:#666; padding: 20px;">در حال همگام‌سازی با گیت‌هاب...</div>
+            <div id="liveVault" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="text-align:center; color:#666; padding: 20px;">در حال همگام‌سازی با مخازن...</div>
             </div>
         </div>
     </div>
@@ -154,10 +188,14 @@
     // ==========================================
     let ytKeys = JSON.parse(localStorage.getItem('av_ytkeys')) || [];
     let accounts = JSON.parse(localStorage.getItem('av_accounts')) || [];
-    let activeTasks = JSON.parse(localStorage.getItem('av_tasks')) || []; // تسک‌های درحال اجرا
-    let liveFiles = []; // فایل‌های واقعی سینک شده از گیت‌هاب
+    let activeTasks = JSON.parse(localStorage.getItem('av_tasks')) || []; 
+    let liveFiles = []; 
+    let analysisData = []; // دیتای آنالیز شده موقت
 
-    const BRANCH = 'main'; // هاردکد شده
+    const BRANCH = 'main';
+
+    // Timer UI Updater
+    setInterval(updateTimersUI, 1000);
 
     // ==========================================
     // 2. توابع UI و نوتیفیکیشن
@@ -166,10 +204,10 @@
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = 'toast';
-        if(isError) toast.style.borderLeftColor = 'var(--danger)';
-        toast.innerHTML = `${isError ? '❌' : '✨'} ${msg}`;
+        if(isError) toast.style.borderRightColor = 'var(--danger)';
+        toast.innerHTML = `${isError ? '❌' : '✨'} <span>${msg}</span>`;
         container.appendChild(toast);
-        setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+        setTimeout(() => { toast.style.animation = 'fadeOut 0.4s forwards'; setTimeout(() => toast.remove(), 400); }, 5000);
     }
 
     // --- مدیریت API یوتیوب ---
@@ -184,68 +222,131 @@
     function removeYtKey(idx) { ytKeys.splice(idx, 1); localStorage.setItem('av_ytkeys', JSON.stringify(ytKeys)); renderKeys(); }
     function renderKeys() {
         const box = document.getElementById('ytKeysList');
-        box.innerHTML = ytKeys.length ? '' : '<span style="font-size:12px; color:#666;">کلیدی یافت نشد</span>';
-        ytKeys.forEach((k, i) => box.innerHTML += `<div class="badge">🔑 ...${k.slice(-6)} <span class="badge-remove" onclick="removeYtKey(${i})">✖</span></div>`);
+        box.innerHTML = ytKeys.length ? '' : '<span style="font-size:12px; color:#666;">کلیدی ثبت نشده</span>';
+        ytKeys.forEach((k, i) => box.innerHTML += `<div class="badge"><div>🔑 ...${k.slice(-8)}</div> <span class="badge-remove" onclick="removeYtKey(${i})">حذف</span></div>`);
     }
 
-    // --- مدیریت اکانت‌ها ---
-    function addAccount() {
+    // --- مدیریت اکانت‌ها و محاسبه فضای خالی گیت‌هاب ---
+    async function addAccount() {
         const owner = document.getElementById('accOwner').value.trim();
         const repo = document.getElementById('accRepo').value.trim();
         const token = document.getElementById('accToken').value.trim();
-        if(!owner || !repo || !token) return showToast('تمام فیلدهای اکانت اجباری است', true);
+        if(!owner || !repo || !token) return showToast('تمام فیلدها الزامی است', true);
         
-        accounts.push({ owner, repo, token, id: Date.now() });
+        accounts.push({ owner, repo, token, id: Date.now(), usedKB: 0 });
         localStorage.setItem('av_accounts', JSON.stringify(accounts));
         document.getElementById('accOwner').value = ''; document.getElementById('accRepo').value = ''; document.getElementById('accToken').value = '';
+        await updateAccountsSpace();
         renderAccounts();
-        syncLiveVault(); // آپدیت لایو
+        syncLiveVault();
     }
     function removeAccount(idx) { accounts.splice(idx, 1); localStorage.setItem('av_accounts', JSON.stringify(accounts)); renderAccounts(); }
-    function renderAccounts() {
-        const box = document.getElementById('accountsList');
-        box.innerHTML = accounts.length ? '' : '<span style="font-size:12px; color:#666;">اکانتی متصل نیست</span>';
-        accounts.forEach((a, i) => box.innerHTML += `<div class="badge">👤 ${a.owner}/${a.repo} <span class="badge-remove" onclick="removeAccount(${i})">✖</span></div>`);
-    }
-
-    renderKeys(); renderAccounts();
-
-    // ==========================================
-    // 3. موتور پردازش یوتیوب (تخمین حجم و زمان)
-    // ==========================================
-    async function fetchYTData(videoIds) {
-        if(ytKeys.length === 0) return videoIds.map(() => 3600); // پیش‌فرض 1 ساعت
-        const idsString = videoIds.join(',');
-        
-        for(let key of ytKeys) {
+    
+    async function updateAccountsSpace() {
+        for(let acc of accounts) {
             try {
-                let res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${idsString}&key=${key}`);
-                if(res.ok) {
-                    let data = await res.json();
-                    let map = {};
-                    data.items.forEach(i => {
-                        let m = i.contentDetails.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-                        map[i.id] = (parseInt(m[1]||0)*3600) + (parseInt(m[2]||0)*60) + parseInt(m[3]||0);
-                    });
-                    return videoIds.map(id => map[id] || 3600);
-                }
+                let res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}`, { headers: { 'Authorization': `Bearer ${acc.token}` }});
+                if(res.ok) { let data = await res.json(); acc.usedKB = data.size; }
             } catch(e) {}
         }
-        showToast('تمام کلیدهای یوتیوب مسدود یا نامعتبرند. استفاده از تخمین فرضی.', true);
-        return videoIds.map(() => 3600);
+        renderAccounts();
     }
 
-    function calcSize(seconds, q) {
-        const m = seconds/60;
-        const rates = { 'best':80, '2160':150, '1440':90, '1080':35, '720':15, '480':8, '360':5, 'audio':1.5 };
-        return m * (rates[q] || 20);
+    function renderAccounts() {
+        const box = document.getElementById('accountsList');
+        box.innerHTML = accounts.length ? '' : '<span style="font-size:12px; color:#666;">کلاستر خالی است</span>';
+        accounts.forEach((a, i) => {
+            // گیت‌هاب حدود 4 گیگ (4194304 KB) محدودیت سافت دارد
+            let totalKB = 4194304; 
+            let usedGB = (a.usedKB / 1024 / 1024).toFixed(2);
+            let pct = Math.min((a.usedKB / totalKB) * 100, 100);
+            let color = pct > 85 ? 'var(--danger)' : 'var(--accent)';
+            
+            box.innerHTML += `
+            <div class="badge" style="flex-direction:column; align-items:stretch; gap:5px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>👤 ${a.owner}/${a.repo}</span>
+                    <span class="badge-remove" onclick="removeAccount(${i})">حذف</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                    <span>مصرف: ${usedGB} GB</span> <span>مجاز: ~4 GB</span>
+                </div>
+                <div class="capacity-bar"><div class="capacity-fill" style="width:${pct}%; background:${color};"></div></div>
+            </div>`;
+        });
     }
 
-    function updateStatsUI(totalSec, totalMB, count) {
-        document.getElementById('stTotalLinks').innerText = count;
-        document.getElementById('stTotalSize').innerText = (totalMB / 1024).toFixed(2) + ' GB';
-        let h = Math.floor(totalSec / 3600); let m = Math.floor((totalSec % 3600) / 60);
-        document.getElementById('stTotalTime').innerText = `${h}h ${m}m`;
+    renderKeys(); renderAccounts(); updateAccountsSpace();
+
+    // ==========================================
+    // 3. آنالیزور پیش‌از دانلود (Pre-Flight)
+    // ==========================================
+    function parseDuration(durationStr) {
+        let m = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        return (parseInt(m[1]||0)*3600) + (parseInt(m[2]||0)*60) + parseInt(m[3]||0);
+    }
+    
+    function calcEstimatedSize(seconds, quality) {
+        let m = seconds / 60;
+        // الگوریتم تخمین بیت‌ریت مگابایت بر دقیقه
+        const rates = { 'best': 85, '2160': 160, '1440': 100, '1080': 45, '720': 20, '480': 10, '360': 6, 'audio': 1.2 };
+        return m * (rates[quality] || 25);
+    }
+
+    function resetAnalysis() {
+        document.getElementById('analysisResult').style.display = 'none';
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('analyzeBtn').style.display = 'block';
+    }
+
+    document.getElementById('videoUrls').addEventListener('input', resetAnalysis);
+
+    async function analyzeLinks() {
+        if(ytKeys.length === 0) return showToast('برای آنالیز به کلید API یوتیوب نیاز دارید', true);
+        const rawUrls = document.getElementById('videoUrls').value.trim().split(/\s+/).filter(u => u.length > 5);
+        if(!rawUrls.length) return showToast('ابتدا لینک‌ها را وارد کنید', true);
+
+        const btn = document.getElementById('analyzeBtn');
+        btn.innerHTML = "⏳ در حال استخراج اطلاعات..."; btn.disabled = true;
+
+        const videoIds = rawUrls.map(u => { let m = u.match(/[?&]v=([^&]+)|youtu\.be\/([^?]+)/); return m ? (m[1]||m[2]) : null; }).filter(i=>i);
+        const quality = document.getElementById('quality').value;
+        
+        analysisData = [];
+        let key = ytKeys[0]; // در نسخه پیشرفته‌تر روی کلیدها لوپ می‌زنیم
+
+        try {
+            let res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoIds.join(',')}&key=${key}`);
+            if(res.ok) {
+                let data = await res.json();
+                let tbody = document.getElementById('analysisTableBody');
+                tbody.innerHTML = '';
+                
+                data.items.forEach(item => {
+                    let sec = parseDuration(item.contentDetails.duration);
+                    let mb = calcEstimatedSize(sec, quality);
+                    let h = Math.floor(sec/3600); let m = Math.floor((sec%3600)/60); let s = sec%60;
+                    let timeStr = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+                    
+                    analysisData.push({ url: `https://youtube.com/watch?v=${item.id}`, mb: mb });
+                    
+                    tbody.innerHTML += `<tr>
+                        <td><img src="${item.snippet.thumbnails.default.url}" class="thumb-img"></td>
+                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.snippet.title}">${item.snippet.title}</td>
+                        <td>${timeStr}</td>
+                        <td style="color:var(--accent); font-weight:bold;">${mb < 1024 ? mb.toFixed(1)+' MB' : (mb/1024).toFixed(2)+' GB'}</td>
+                    </tr>`;
+                });
+                
+                document.getElementById('analysisResult').style.display = 'block';
+                btn.style.display = 'none';
+                document.getElementById('startBtn').style.display = 'flex';
+            } else {
+                showToast('خطا در توکن یوتیوب یا لیمیت شدن آن', true);
+            }
+        } catch(e) { showToast('خطا در ارتباط با سرور یوتیوب', true); }
+        
+        btn.innerHTML = "🔍 آنالیز دقیق ویدیوها"; btn.disabled = false;
     }
 
     // ==========================================
@@ -253,37 +354,44 @@
     // ==========================================
     async function processDownloads() {
         if(accounts.length === 0) return showToast('ابتدا یک اکانت گیت‌هاب اضافه کنید', true);
-        const rawUrls = document.getElementById('videoUrls').value.trim().split(/\s+/).filter(u => u.length > 5);
-        if(!rawUrls.length) return showToast('لینکی وارد نشده است', true);
-
+        
         const quality = document.getElementById('quality').value;
         const password = document.getElementById('password').value;
         const subtitles = document.getElementById('subtitles').checked ? 'true' : 'false';
         const startBtn = document.getElementById('startBtn');
 
-        startBtn.innerHTML = "⏳ در حال استخراج متا و محاسبه بار..."; startBtn.disabled = true;
-
-        const videoIds = rawUrls.map(u => { let m = u.match(/[?&]v=([^&]+)|youtu\.be\/([^?]+)/); return m ? (m[1]||m[2]) : null; }).filter(i=>i);
-        const durations = await fetchYTData(videoIds);
+        // Collision Check (بررسی تداخل اکانت‌ها)
+        let busyAccounts = activeTasks.filter(t => t.status !== 'success' && t.status !== 'failed').map(t => t.acc.repo);
         
-        let totalSec = 0; let totalMB = 0;
-        let vids = rawUrls.map((url, i) => {
-            let s = durations[i]||3600; let mb = calcSize(s, quality);
-            totalSec+=s; totalMB+=mb; return { url, mb };
-        });
-        
-        updateStatsUI(totalSec, totalMB, vids.length);
-
-        // Load Balancing (Max 11 items or 3500MB per account)
+        // Load Balancing (حداکثر 11 فایل یا 3.5 گیگ در هر اکانت)
         let batches = []; let cur = { accIdx: 0, urls: [], mb: 0 };
-        for(let v of vids) {
-            if(cur.urls.length >= 11 || (cur.mb + v.mb) > 3500) { batches.push(cur); cur = { accIdx: cur.accIdx+1, urls: [], mb: 0 }; }
-            if(cur.accIdx >= accounts.length) { showToast(`ظرفیت اکانت‌ها پر شد. ${vids.length - batches.flatMap(b=>b.urls).length} ویدیو نادیده گرفته شد.`, true); break; }
+        
+        for(let v of analysisData) {
+            // پیدا کردن اکانت آزاد
+            while (cur.accIdx < accounts.length && busyAccounts.includes(accounts[cur.accIdx].repo)) {
+                cur.accIdx++;
+            }
+            if(cur.accIdx >= accounts.length) break; // اکانت آزادی نمانده
+
+            if(cur.urls.length >= 11 || (cur.mb + v.mb) > 3500) { 
+                batches.push(cur); 
+                cur = { accIdx: cur.accIdx+1, urls: [], mb: 0 }; 
+                while (cur.accIdx < accounts.length && busyAccounts.includes(accounts[cur.accIdx].repo)) cur.accIdx++;
+            }
+            if(cur.accIdx >= accounts.length) break;
+            
             cur.urls.push(v.url); cur.mb += v.mb;
         }
         if(cur.urls.length > 0 && cur.accIdx < accounts.length) batches.push(cur);
 
-        // Dispatch
+        if(batches.length === 0) return showToast('تمامی اکانت‌های شما در حال انجام کار هستند! صبر کنید.', true);
+
+        if(analysisData.length > batches.flatMap(b=>b.urls).length) {
+            showToast('ظرفیت/تعداد اکانت‌های آزاد کافی نیست. مقداری از ویدیوها نادیده گرفته شدند.', true);
+        }
+
+        startBtn.innerHTML = "⏳ در حال ارسال به سرور..."; startBtn.disabled = true;
+
         for(let b of batches) {
             const acc = accounts[b.accIdx];
             const tId = Date.now() + Math.random().toString(36).substr(2,5);
@@ -297,13 +405,13 @@
         }
 
         document.getElementById('videoUrls').value = '';
-        startBtn.innerHTML = "🚀 آغاز پردازش و دانلود توزیع‌شده"; startBtn.disabled = false;
-        showToast('دستورات با موفقیت به کلاستر ارسال شد.');
+        resetAnalysis();
+        showToast('🚀 دستورات به کلاستر ارسال شد.');
         startMonitor();
     }
 
     // ==========================================
-    // 5. مانیتورینگ لایو گیت‌هاب
+    // 5. مانیتورینگ لایو گیت‌هاب (Progress & Timer)
     // ==========================================
     let monitorTimer;
     function startMonitor() {
@@ -314,14 +422,13 @@
             for(let t of activeTasks) {
                 if(t.status !== 'success' && t.status !== 'failed') { active = true; await checkTask(t); }
             }
-            if(active) renderVault(); else { clearInterval(monitorTimer); syncLiveVault(); }
-        }, 10000);
+            if(active) renderVault(); else { clearInterval(monitorTimer); syncLiveVault(); updateAccountsSpace(); }
+        }, 8000); // 8 seconds polling for better UI sync
     }
 
     async function checkTask(task) {
         const acc = task.acc;
         try {
-            // پیدا کردن ران فعال
             let res = await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/runs?per_page=3`, { headers: { 'Authorization': `Bearer ${acc.token}` } });
             let data = await res.json();
             let run = data.workflow_runs.find(r => new Date(r.created_at).getTime() >= task.started - 60000 && r.name.includes("01"));
@@ -329,28 +436,52 @@
             if(run) {
                 if(run.status === 'completed') {
                     task.status = run.conclusion === 'success' ? 'success' : 'failed';
-                    task.step = task.status === 'success' ? 'عملیات با موفقیت پایان یافت' : 'خطا در عملیات';
+                    task.step = task.status === 'success' ? 'عملیات موفقیت آمیز بود' : 'خطای سرور گیت‌هاب';
                     saveState(); return;
                 }
                 
-                // گرفتن استپ‌های زنده (مانیتورینگ دقیق)
                 let jobRes = await fetch(run.jobs_url, { headers: { 'Authorization': `Bearer ${acc.token}` } });
                 let jobData = await jobRes.json();
                 if(jobData.jobs && jobData.jobs.length > 0) {
                     let steps = jobData.jobs[0].steps;
                     let currentStep = steps.reverse().find(s => s.status === 'in_progress' || s.status === 'completed');
-                    if(currentStep) task.step = currentStep.name;
+                    if(currentStep) {
+                        task.step = currentStep.name;
+                        task.status = 'running';
+                    }
                 }
                 saveState();
             }
         } catch(e) {}
     }
 
+    function getProgressPct(status, stepStr) {
+        if(status === 'success') return 100;
+        if(status === 'failed') return 100;
+        if(status === 'queued') return 10;
+        if(!stepStr) return 10;
+        
+        let s = stepStr.toLowerCase();
+        if(s.includes('setup') || s.includes('checkout')) return 20;
+        if(s.includes('warp') || s.includes('dependenc')) return 35;
+        if(s.includes('download')) return 70; // طولانی‌ترین مرحله
+        if(s.includes('commit') || s.includes('push')) return 90;
+        return 50;
+    }
+
+    function updateTimersUI() {
+        document.querySelectorAll('.task-timer').forEach(el => {
+            let start = parseInt(el.getAttribute('data-start'));
+            let diff = Math.floor((Date.now() - start) / 1000);
+            let m = Math.floor(diff / 60); let s = diff % 60;
+            el.innerText = `⏱ ${m}m ${s}s`;
+        });
+    }
+
     // ==========================================
-    // 6. سینک و رندر مخزن واقعی (Real Vault)
+    // 6. سینک و رندر مخزن واقعی
     // ==========================================
     async function syncLiveVault() {
-        showToast('در حال همگام‌سازی با مخازن...');
         liveFiles = [];
         for(let acc of accounts) {
             try {
@@ -365,8 +496,7 @@
                         let dlFiles = [];
                         for(let file of files) {
                             if(!file.name.endsWith('.jpg') && !file.name.endsWith('.md')) {
-                                let rawUrl = `https://raw.githubusercontent.com/${acc.owner}/${acc.repo}/${BRANCH}/${file.path}`;
-                                dlFiles.push({ name: file.name, url: rawUrl, health: 'checking' });
+                                dlFiles.push({ name: file.name, url: `https://raw.githubusercontent.com/${acc.owner}/${acc.repo}/${BRANCH}/${file.path}`, health: 'ok' });
                             }
                         }
                         if(dlFiles.length > 0) liveFiles.push({ acc, folder: f.name, files: dlFiles, deleted: false });
@@ -375,66 +505,50 @@
             } catch(e) {}
         }
         
-        // پاک کردن تسک‌های قدیمی موفق، چون حالا در liveFiles هستند
         activeTasks = activeTasks.filter(t => t.status !== 'success');
-        saveState();
-        renderVault();
-        checkLinksHealth();
-    }
-
-    async function checkLinksHealth() {
-        for(let block of liveFiles) {
-            if(block.deleted) continue;
-            for(let f of block.files) {
-                try {
-                    // چک کردن هدر برای دیدن زنده بودن لینک بدون دانلود آن
-                    let res = await fetch(f.url, { method: 'HEAD' });
-                    f.health = res.ok ? 'ok' : 'dead';
-                } catch(e) { f.health = 'dead'; }
-            }
-        }
-        renderVault();
+        saveState(); renderVault();
     }
 
     function renderVault() {
         const box = document.getElementById('liveVault');
         box.innerHTML = '';
         
-        // رندر تسک‌های در حال اجرا (مانیتورینگ)
+        // Render Active Tasks
         activeTasks.forEach(t => {
-            let color = t.status === 'failed' ? 'var(--danger)' : '#f39c12';
+            let pct = getProgressPct(t.status, t.step);
+            let color = t.status === 'failed' ? 'var(--danger)' : 'var(--accent)';
             box.innerHTML += `
             <div class="log-item">
                 <div class="log-header">
-                    <span>⚙️ پردازش روی: <b>${t.acc.repo}</b></span>
-                    <span class="badge" style="color:${color}">${t.status === 'queued' ? 'در صف' : t.status === 'failed' ? 'شکست' : 'در حال اجرا'}</span>
+                    <span>⚙️ پردازش: <b>${t.acc.repo}</b></span>
+                    <span class="timer task-timer" data-start="${t.started}">⏱ 0m 0s</span>
                 </div>
-                <div class="log-step">▶ آخرین وضعیت: ${t.step}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">${t.step}</div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: ${pct}%; background: ${color}"></div>
+                </div>
             </div>`;
         });
 
-        // رندر فایل‌های واقعی سینک شده
+        // Render Live Files
         liveFiles.forEach((block, idx) => {
-            let filesHtml = block.files.map(f => {
-                let icon = f.health === 'ok' ? '✅' : (f.health === 'dead' ? '❌' : '⏳');
-                return `<div class="file-row">
-                    <a href="${f.url}" target="_blank">🎬 ${f.name}</a>
-                    <span>${icon}</span>
-                </div>`;
-            }).join('');
+            let filesHtml = block.files.map(f => `
+                <div class="file-row">
+                    <a href="${f.url}" target="_blank">📄 ${f.name}</a>
+                    <span style="color:var(--success)">${f.health === 'ok' ? 'سالم ✅' : 'حذف شده ❌'}</span>
+                </div>`).join('');
 
             box.innerHTML += `
-            <div class="log-item ${block.deleted ? 'deleted' : 'success'}" id="block-${idx}">
+            <div class="log-item ${block.deleted ? 'deleted' : 'success'}">
                 <div class="log-header">
-                    <span>📁 <b>${block.folder}</b> <span style="font-size:10px; color:#666;">(${block.acc.repo})</span></span>
+                    <span style="font-weight:bold; color:#fff;">📁 ${block.folder} <span style="font-size:10px; color:#888;">(${block.acc.repo})</span></span>
                     <button class="btn-small" onclick="wipeSingle('${idx}')" ${block.deleted?'disabled':''} style="border-color:var(--danger); color:var(--danger);">🗑️ حذف</button>
                 </div>
                 ${filesHtml}
-                ${block.deleted ? '<div style="color:var(--danger); font-size:12px; margin-top:10px; text-align:center;">این ویدیو از مخزن حذف شده است.</div>' : ''}
             </div>`;
         });
 
-        if(!activeTasks.length && !liveFiles.length) box.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">مخزن خالی است.</div>';
+        if(!activeTasks.length && !liveFiles.length) box.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">هیچ ویدیویی در سرورها وجود ندارد.</div>';
     }
 
     function copyAllLinks() {
@@ -442,59 +556,54 @@
         liveFiles.forEach(b => { if(!b.deleted) b.files.forEach(f => { if(f.health === 'ok') links.push(f.url); }) });
         if(links.length === 0) return showToast('لینک سالمی برای کپی یافت نشد.', true);
         navigator.clipboard.writeText(links.join('\n'));
-        showToast(`تعداد ${links.length} لینک سالم در کلیپ‌بورد کپی شد.`);
+        showToast(`تعداد ${links.length} لینک در حافظه کپی شد.`);
     }
 
     // ==========================================
-    // 7. پروتکل پاکسازی اتمیک (متوالی و هوشمند)
+    // 7. پروتکل پاکسازی اتمیک (متوالی)
     // ==========================================
     async function executeWipeProtocol(acc, callback) {
-        showToast(`در حال حذف ویدیوها از مخزن ${acc.repo}...`);
+        showToast(`درحال ارسال دستور حذف به ${acc.repo}...`);
         try {
-            // 1. اجرای Cleaner
             await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/cleaner.yml/dispatches`, {
                 method: 'POST', headers: { 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ref: BRANCH, inputs: { confirm_delete: "true" } })
             });
 
-            // صبر میکنیم 15 ثانیه تا اکشن حذف کارش را بکند
             setTimeout(async () => {
-                showToast(`در حال پاکسازی تاریخچه زباله گیت‌هاب (${acc.repo})...`);
-                // 2. اجرای History Cleaner
+                showToast(`درحال پاکسازی زباله‌های مخفی ${acc.repo}...`);
                 await fetch(`https://api.github.com/repos/${acc.owner}/${acc.repo}/actions/workflows/history_cleaner.yml/dispatches`, {
                     method: 'POST', headers: { 'Authorization': `Bearer ${acc.token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ref: BRANCH, inputs: { info: "Auto-triggered" } })
                 });
-                showToast(`پاکسازی ${acc.repo} با موفقیت در سرور ثبت شد.`);
+                showToast(`پاکسازی ${acc.repo} به اتمام رسید.`);
+                updateAccountsSpace();
                 if(callback) callback();
-            }, 15000);
-        } catch(e) { showToast('خطا در ارتباط با سرور برای پاکسازی', true); }
+            }, 12000);
+        } catch(e) { showToast('خطا در پاکسازی', true); }
     }
 
     function wipeSingle(idx) {
         let block = liveFiles[idx];
         if(!block || block.deleted) return;
         executeWipeProtocol(block.acc, () => {
-            // تغییر وضعیت ظاهری به حذف شده بدون رفرش کل
-            block.deleted = true;
-            block.files.forEach(f => f.health = 'dead');
-            renderVault();
+            block.deleted = true; block.files.forEach(f => f.health = 'dead'); renderVault();
         });
     }
 
     function wipeAll() {
         if(accounts.length === 0) return;
-        showToast('🔥 پروتکل انهدام کلی استارت خورد...');
-        accounts.forEach(acc => executeWipeProtocol(acc, () => {
+        showToast('🔥 انهدام کلاستر شروع شد...');
+        let uniqueAccs = [...new Set(liveFiles.map(b => b.acc.repo))].map(repo => liveFiles.find(b => b.acc.repo === repo).acc);
+        uniqueAccs.forEach(acc => executeWipeProtocol(acc, () => {
             liveFiles.forEach(b => { if(b.acc.repo === acc.repo) { b.deleted = true; b.files.forEach(f=>f.health='dead'); }});
             renderVault();
         }));
     }
 
-    // Utils
     function saveState() { localStorage.setItem('av_tasks', JSON.stringify(activeTasks)); }
     
-    // Auto-Start
+    // Auto-Start Initializations
     if(accounts.length > 0) syncLiveVault();
     if(activeTasks.length > 0) startMonitor();
 </script>
